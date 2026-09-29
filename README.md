@@ -1,31 +1,32 @@
-# Nexus Play — Componentes funcionales en React
+# Nexus Play — Hooks y carga dinámica en React
 
-**Actividad Formativa 5 (Semana 7)** — PFY2201 Desarrollo Frontend I, Duoc UC.
-"Construyendo componentes funcionales en React para un eCommerce interactivo".
+**Actividad Sumativa 3 (Semana 8)** — PFY2201 Desarrollo Frontend I, Duoc UC.
+"Mejorando funcionalidades clave en el eCommerce con React".
 
-El mismo e-commerce de las semanas anteriores, ahora **reconstruido con React**:
-catálogo con precios de oferta, carrito de compras con contador y total, y buscador
-que filtra mientras se escribe.
+El mismo e-commerce de las semanas anteriores, ahora con el **catálogo cargado
+dinámicamente** desde un archivo JSON externo mediante `useEffect`, seis estados
+gestionados con `useState` y ocho situaciones resueltas con renderizado condicional.
 
 - **Sitio publicado:** <https://fcoxavierparra.github.io/PFY2201_S8_FPARRA/>
 - **Autor:** Francisco Javier Parra
 
-## Qué cambia respecto de la Semana 6
+## Qué cambia respecto de la Semana 7
 
-Hasta la Semana 6 el sitio era HTML, CSS y JavaScript con manipulación directa del DOM
-(`createElement`, `appendChild`, delegación de eventos). Esta semana **se reescribe la
-lógica en React**: el estado describe qué debe verse y React se encarga de pintarlo.
+En la Semana 7 el catálogo era un módulo de JavaScript que se importaba: un dato fijo,
+conocido al compilar y siempre disponible.
 
-Se conservan el caso, los nueve productos, las portadas SVG, la identidad visual, la
-barra de navegación, la sección de inicio, el filtro por categorías y el pie de página.
-Se retiran el carrusel de destacados, el formulario de contacto, el modal de compra y la
-carga por `fetch`: no forman parte de lo que evalúa esta actividad y habría que
-reimplementarlos a mano, porque **el JavaScript de Bootstrap no convive con React** —
-manipula el DOM por su cuenta y React es quien lo gobierna aquí.
+**Esta semana el catálogo llega de fuera.** Eso lo convierte en tres cosas a la vez:
 
-El menú colapsable es el ejemplo de cómo se resuelve eso: se usa el CSS de Bootstrap
-(`.collapse` oculta, `.show` muestra) y React se limita a añadir o quitar la clase
-según su estado. Cero JavaScript del framework.
+- un **estado**, porque cambia después del primer renderizado;
+- un **efecto secundario**, porque pedirlo es una acción sobre el exterior que no puede
+  ocurrir durante el renderizado;
+- y **algo que puede fallar**, porque la red no siempre responde.
+
+De ahí salen los tres estados nuevos (`productos`, `cargando`, `error`) y las dos vistas
+nuevas de la aplicación.
+
+También se añade el botón que cambia de texto: cuando un producto ya está en el carrito,
+su botón pasa de *"Agregar al carrito"* a *"En el carrito ✓"*.
 
 ## Cómo ejecutarlo
 
@@ -48,32 +49,95 @@ nombre del repositorio porque así se publica en GitHub Pages: ver *Publicación
 | `npm run deploy` | Construye y publica el `dist/` en la rama `gh-pages` |
 | `npm run lint` | Revisa el código con oxlint |
 
+## Los hooks
+
+### `useState` — seis estados
+
+Cinco viven en `App.jsx` y bajan por props, porque los leen varias ramas del árbol:
+
+```js
+const [productos, setProductos] = useState([]);       // el catálogo
+const [cargando, setCargando]   = useState(true);     // el fetch en vuelo
+const [error, setError]         = useState(null);     // si la carga falla
+const [carrito, setCarrito]     = useState([]);       // { id, cantidad }
+const [busqueda, setBusqueda]   = useState("");       // texto del buscador
+const [categoria, setCategoria] = useState("Todas");  // filtro por género
+```
+
+El sexto, `menuAbierto`, **vive dentro de `Encabezado`**, porque no le importa a ningún
+otro componente. La regla es que el estado sube solo hasta donde hace falta compartirlo.
+
+`cargando` empieza en `true`: la aplicación nace cargando, no vacía. Si empezara en
+`false` se vería un instante el mensaje de "no hay juegos" antes de llegar los datos.
+
+**Lo que NO es estado.** El listado filtrado, las líneas del carrito, las categorías, el
+contador y los totales se **derivan** en cada renderizado a partir del estado. Guardarlos
+en su propio `useState` obligaría a mantenerlos sincronizados a mano, y tarde o temprano
+se desincronizan.
+
+### `useEffect` — cargar el catálogo
+
+```js
+useEffect(() => {
+    let cancelado = false;
+
+    fetch(URL_DATOS)
+        .then((respuesta) => {
+            if (!respuesta.ok) throw new Error(`El servidor respondió ${respuesta.status}`);
+            return respuesta.json();
+        })
+        .then((datos) => { if (!cancelado) { setProductos(datos.productos); setCargando(false); } })
+        .catch((fallo) => { if (!cancelado) { /* mensaje amigable + setCargando(false) */ } });
+
+    return () => { cancelado = true; };
+}, []);
+```
+
+Tres decisiones que conviene explicar:
+
+**`[]` como segundo argumento** hace que el efecto corra una sola vez, justo después del
+primer renderizado. Sin el arreglo correría en cada renderizado, y como el efecto cambia
+el estado, eso sería un bucle infinito.
+
+**`response.ok` antes del `.json()`**, porque un 404 **no** hace que `fetch` falle: la
+promesa se resuelve igual y `.json()` reventaría intentando leer una página de error. Hay
+que mirar el estado a mano.
+
+**La guarda `cancelado`** existe porque en desarrollo React monta el componente, lo
+desmonta y lo vuelve a montar para destapar efectos mal escritos. Sin ella, la respuesta
+del primer `fetch` intentaría actualizar un componente que ya no está.
+
+### Renderizado condicional — ocho situaciones
+
+| # | Estado | Qué se ve |
+|---|---|---|
+| 1 | **Cargando** | Aviso con spinner en lugar de la rejilla |
+| 2 | **Error de carga** | Mensaje amigable; el encabezado, el carrito y el pie siguen en pie |
+| 3 | **Producto ya en el carrito** | El botón dice "En el carrito ✓" y cambia a estilo de contorno |
+| 4 | Carrito vacío | "Tu carrito está vacío. Agrega un juego del catálogo para empezar." |
+| 5 | Filtros sin coincidencias | Aviso que dice por cuál de los dos filtros se quedó vacío |
+| 6 | Oferta destacada | "¡Mejor precio!" solo en los productos con 30 % o más de descuento |
+| 7 | Categoría activa | Su botón pintado con el color de marca; los demás en contorno |
+| 8 | Menú desplegado | La clase `show` se añade solo cuando el estado lo pide |
+
+`ListaProductos` concentra las cuatro primeras vistas y decide entre ellas con *returns*
+tempranos, que se leen mejor que tres ternarios anidados dentro del JSX.
+
+**El botón no se deshabilita** cuando el producto ya está en el carrito. Seguir pulsando
+suma otra unidad, que es lo que hace cualquier tienda. Lo único que cambia es lo que se
+lee, para saber de un vistazo qué hay dentro del carrito sin tener que abrirlo.
+
 ## Funcionalidades
 
 | Funcionalidad | Técnica | Dónde |
 |---|---|---|
-| **Listado de productos** | `.map()` sobre los datos del catálogo | Nueve tarjetas con nombre, precio normal, **precio de oferta**, descripción e imagen |
-| **Agregar al carrito** | evento `onClick` | Si el producto ya está en el carrito suma una unidad en lugar de duplicar la línea |
+| **Catálogo dinámico** | `useEffect` + `fetch` | Nueve productos desde `public/data/productos.json`, con nombre, precio normal, precio de oferta, descripción e imagen |
+| **Agregar al carrito** | evento `onClick` | Si el producto ya está, suma una unidad en lugar de duplicar la línea |
 | **Eliminar del carrito** | evento `onClick` | Quitar una unidad, eliminar la línea completa o vaciar el carrito |
 | **Contador y total** | `.reduce()` sobre el estado | El contador cuenta unidades; el total suma los precios de oferta y muestra el ahorro |
-| **Buscador en vivo** | evento `onChange` | Filtra el catálogo mientras se escribe, sin pulsar ningún botón |
-| **Filtro por categorías** | evento `onClick` | Las categorías se calculan desde los datos, no se escriben a mano. Se combina con el buscador |
-| **Menú colapsable** | evento `onClick` + estado local | La hamburguesa abre y cierra el menú en móvil, y se cierra sola al elegir una sección |
-| **Renderizado condicional** | operador ternario y `&&` | Cinco estados distintos, ver abajo |
-
-### Renderizado condicional
-
-Cinco estados de la aplicación cambian lo que se ve en pantalla:
-
-1. **Carrito vacío** → en lugar de una lista y un total en cero, un mensaje que indica
-   qué hacer.
-2. **Filtros sin coincidencias** → en lugar de una rejilla vacía, un aviso que explica
-   por cuál de los dos filtros se quedó sin resultados: el texto, la categoría o ambos.
-3. **Oferta destacada** → la etiqueta *"¡Mejor precio!"* aparece solo en los productos
-   cuyo descuento llega al 30 %; el resto muestra el porcentaje de ahorro en texto.
-4. **Categoría activa** → su botón se pinta con el color de marca y los demás quedan en
-   contorno.
-5. **Menú desplegado** → la clase `show` se añade solo cuando el estado lo pide.
+| **Buscador en vivo** | evento `onChange` | Filtra mientras se escribe, sin pulsar ningún botón |
+| **Filtro por categorías** | evento `onClick` | Las categorías se calculan desde los datos. Se combina con el buscador |
+| **Menú colapsable** | evento `onClick` + estado local | Se cierra solo al elegir una sección |
 
 ## Estructura
 
@@ -82,63 +146,69 @@ Cinco estados de la aplicación cambian lo que se ve en pantalla:
 ├── vite.config.js              Configuración de Vite, con la ruta base de Pages
 ├── package.json
 ├── capturas/                   Evidencias de las funcionalidades
+├── public/                     Se copia tal cual al build, sin pasar por Vite
+│   ├── data/productos.json     La fuente de datos del catálogo
+│   ├── img/                    Portadas SVG y logotipo
+│   └── favicon.svg
 └── src/
     ├── main.jsx                Punto de entrada: monta <App /> en el DOM
-    ├── App.jsx                 Estado de la aplicación y reparto por props
+    ├── App.jsx                 Estado, efecto de carga y reparto por props
     ├── index.css               Capa de estilo propio sobre Bootstrap 5
-    ├── data/productos.js       Los nueve productos, con precio y oferta
-    ├── utils/formato.js        Funciones reutilizables de formato y filtrado
-    ├── assets/img/              Portadas SVG y logotipo
+    ├── utils/formato.js        Funciones reutilizables: rutas, formato y filtros
     └── components/
-        ├── Encabezado.jsx       Barra de navegación, buscador y contador
-        ├── Buscador.jsx         Campo de búsqueda (onChange)
-        ├── Inicio.jsx           Presentación de la tienda
+        ├── Encabezado.jsx      Barra de navegación, buscador y contador
+        ├── Buscador.jsx        Campo de búsqueda (onChange)
+        ├── Inicio.jsx          Presentación de la tienda
         ├── FiltroCategorias.jsx Botones de categoría (onClick)
-        ├── ListaProductos.jsx   Rejilla del catálogo
-        ├── TarjetaProducto.jsx  Ficha de un producto
-        ├── Carrito.jsx          Sección del carrito
-        ├── LineaCarrito.jsx     Una línea del carrito
-        ├── TotalCarrito.jsx     Unidades, ahorro y total
-        └── PieDePagina.jsx      Contacto y redes
+        ├── ListaProductos.jsx  Rejilla del catálogo y sus cuatro vistas
+        ├── TarjetaProducto.jsx Ficha de un producto
+        ├── Carrito.jsx         Sección del carrito
+        ├── LineaCarrito.jsx    Una línea del carrito
+        ├── TotalCarrito.jsx    Unidades, ahorro y total
+        └── PieDePagina.jsx     Contacto y redes
 ```
-
-### Dónde vive el estado
-
-El estado que comparten varios componentes está en `App.jsx` y baja por props:
-
-```js
-const [carrito, setCarrito]     = useState([]);      // { id, cantidad }
-const [busqueda, setBusqueda]   = useState("");      // texto del buscador
-const [categoria, setCategoria] = useState("Todas"); // filtro de categoría
-```
-
-Está ahí y no repartido porque el contador lo pinta el encabezado, las líneas las pinta
-el carrito y quien agrega productos es una tarjeta del catálogo: tres ramas distintas
-del árbol leyendo el mismo dato, así que el dato vive en el ancestro común.
-
-Lo contrario también vale: **el menú desplegable guarda su estado dentro de
-`Encabezado`**, porque no le importa a ningún otro componente. La regla es que el estado
-sube solo hasta donde hace falta compartirlo.
-
-El listado filtrado y las líneas del carrito **no son estado**: se derivan en cada
-renderizado a partir de `carrito`, `busqueda`, `categoria` y el catálogo. Guardarlos en
-su propio `useState` obligaría a mantenerlos sincronizados a mano.
 
 ## Publicación
 
-El sitio se sirve desde `https://fcoxavierparra.github.io/PFY2201_S8_FPARRA/`, que es
-un subdirectorio y no la raíz del dominio. Por eso `vite.config.js` declara:
+El sitio se sirve desde `https://fcoxavierparra.github.io/PFY2201_S8_FPARRA/`, que es un
+subdirectorio y no la raíz del dominio. Por eso `vite.config.js` declara:
 
 ```js
 base: '/PFY2201_S8_FPARRA/'
 ```
 
-Sin esa línea el sitio publicado pide sus archivos en `/assets/...` y sale en blanco.
-Por la misma razón **las imágenes se importan** en lugar de referenciarse por ruta: así
-Vite les reescribe la URL durante la construcción y respetan la ruta base.
+**Y por eso el JSON y las imágenes se piden con la base delante.** Vite reescribe las
+rutas de lo que se importa desde `src/`, pero **no toca lo que vive en `public/`**: lo
+copia tal cual. Así que la ruta se compone a mano:
+
+```js
+export const URL_DATOS = import.meta.env.BASE_URL + "data/productos.json";
+export function rutaImagen(archivo) { return import.meta.env.BASE_URL + archivo; }
+```
+
+Escribir `/data/productos.json` a pelo funciona en local y **da 404 al publicar**. Y a
+diferencia de la ruta base del bundle, este fallo no avisa con una página en blanco:
+avisa con el catálogo vacío y el mensaje de error, que es más fácil de confundir con un
+fallo del propio código.
 
 En la rama `gh-pages` va el contenido de `dist/`, no el código fuente. `npm run deploy`
-hace las dos cosas.
+hace las dos cosas. Pages se activa a mano en Settings → Pages.
+
+## Por qué un JSON local y no una API externa
+
+La guía de la semana enseña la API de RAWG, que exige registrarse y usar una *API key*.
+Aquí se usa un archivo JSON propio, por tres razones:
+
+1. **RAWG no tiene precios.** Devuelve nombre, géneros, plataformas, fecha y valoración,
+   pero el carrito necesita `precio` y `oferta` para calcular el total.
+2. **Sería una dependencia externa en tiempo de ejecución.** Si la API está caída o su
+   cuota agotada, el catálogo aparece vacío para quien visite el sitio.
+3. **La clave quedaría publicada.** En un sitio estático el navegador es quien llama a la
+   API, así que la clave viaja dentro del JavaScript que se sirve. Los *secrets* de GitHub
+   la sacan del código fuente, pero no del *bundle* publicado.
+
+Las instrucciones lo contemplan: *"puede ser un archivo JSON local o una API pública
+sencilla"*.
 
 ## Créditos
 
