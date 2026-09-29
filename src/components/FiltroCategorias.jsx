@@ -13,8 +13,8 @@
    El filtrado ocurre en App, que es donde vive el estado. Así este
    componente sirve igual aunque cambie la forma de filtrar.
 
-   Aporta un segundo evento onClick al criterio 4 y un renderizado
-   condicional al 5: el botón activo se pinta distinto del resto.
+   Aporta otro elemento interactivo al criterio 1 y un renderizado
+   condicional al 3: el botón activo se pinta distinto del resto.
    ============================================================ */
 
 function FiltroCategorias({ categorias, seleccionada, alSeleccionar }) {

@@ -66,7 +66,7 @@ export function calcularAhorro(precio, oferta) {
 
 /**
  * Decide si un producto merece la etiqueta de oferta destacada.
- * La usa TarjetaProducto para el renderizado condicional del criterio 5.
+ * La usa TarjetaProducto para el renderizado condicional del criterio 3.
  * @param {number} precio - Precio normal.
  * @param {number} oferta - Precio de oferta.
  * @returns {boolean} true si el descuento llega al umbral destacado.

@@ -30,8 +30,9 @@ su botón pasa de *"Agregar al carrito"* a *"En el carrito ✓"*.
 
 ## Cómo ejecutarlo
 
-Requiere **Node.js LTS** (probado con la 24.21.0) y conexión a internet, porque
-Bootstrap 5.3.8 viene del CDN.
+Requiere **Node.js LTS** (probado con la 24.21.0). Una vez instaladas las dependencias,
+el sitio **no necesita conexión para verse bien**: Bootstrap se instala con npm y viaja
+dentro del proyecto, no viene de ningún CDN.
 
 ```bash
 npm install     # instala las dependencias
@@ -213,4 +214,4 @@ sencilla"*.
 ## Créditos
 
 Las portadas y el logotipo son SVG propios, creados para este proyecto.
-Bootstrap 5.3.8 se carga desde jsDelivr. React 19 y Vite 8 se instalan con npm.
+React 19, Vite 8 y Bootstrap 5.3.8 se instalan con npm.

@@ -13,7 +13,8 @@
    valor que se ve en pantalla y el que usa el filtro son siempre el
    mismo dato, y no dos copias que puedan desincronizarse.
 
-   Aquí vive el evento onChange que pide el criterio 4 de la pauta.
+   Aquí vive el evento onChange del buscador: es uno de los "elementos
+   interactivos" que pide el criterio 1 de la pauta.
    ============================================================ */
 
 function Buscador({ busqueda, alBuscar }) {

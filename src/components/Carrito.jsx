@@ -17,7 +17,7 @@ import LineaCarrito from "./LineaCarrito";
 import TotalCarrito from "./TotalCarrito";
 
 function Carrito({ lineas, alQuitar, alEliminar, alVaciar }) {
-    /* RENDERIZADO CONDICIONAL (criterio 5).
+    /* RENDERIZADO CONDICIONAL (criterio 3).
        Con el carrito vacío no tiene sentido mostrar una lista vacía ni
        un total de cero: se sustituye por un mensaje que dice qué hacer. */
     const vacio = lineas.length === 0;

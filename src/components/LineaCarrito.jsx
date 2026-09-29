@@ -10,8 +10,8 @@
    Devuelve: un elemento de la lista del carrito.
 
    Igual que TarjetaProducto, se instancia tantas veces como líneas
-   tenga el carrito. Los dos eventos onClick que expone son los del
-   criterio 4 en su vertiente de eliminar.
+   tenga el carrito. Los dos eventos onClick que expone cubren la
+   parte de eliminar que pide el criterio 1.
    ============================================================ */
 
 import { formatearPrecio, rutaImagen } from "../utils/formato";
