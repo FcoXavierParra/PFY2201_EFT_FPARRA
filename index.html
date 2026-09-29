@@ -1,0 +1,51 @@
+<!doctype html>
+<!-- ============================================================
+     Nexus Play — plantilla base de la aplicación React
+     PFY2201 Desarrollo Frontend I · Duoc UC
+     Actividad Formativa 5 (Semana 7)
+
+     Este es el único HTML del proyecto y está casi vacío a propósito:
+     su trabajo es cargar los estilos y el script, y ofrecer el <div>
+     donde React monta la aplicación. Todo el contenido lo generan los
+     componentes de src/.
+
+     lang="es" para accesibilidad y lectores de pantalla.
+     data-bs-theme="dark" activa el modo oscuro NATIVO de Bootstrap 5.3.
+     ============================================================ -->
+<html lang="es" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <!-- Codificación UTF-8: permite acentos y caracteres especiales (ñ, á, é) -->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Viewport: imprescindible para el diseño responsivo de Bootstrap -->
+
+    <meta name="description"
+        content="Nexus Play, tienda de videojuegos: catálogo con ofertas y carrito de compras construido con React." />
+
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+
+    <title>Nexus Play — Tienda de videojuegos</title>
+
+    <!-- ============================================================
+         BOOTSTRAP 5.3.8 — solo la hoja de estilos, por CDN.
+         Va ANTES del bundle de la aplicación, para que src/index.css
+         pueda reasignar sus variables.
+
+         NO se carga el JavaScript de Bootstrap: manipula el DOM por su
+         cuenta y entraría en conflicto con React, que es quien lo
+         gobierna aquí. No hace falta, porque esta versión del sitio no
+         usa ningún componente que lo necesite.
+         ============================================================ -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+
+<body>
+    <!-- React monta aquí toda la aplicación -->
+    <div id="root"></div>
+
+    <script type="module" src="/src/main.jsx"></script>
+</body>
+
+</html>
