@@ -4,8 +4,9 @@
 "Mejorando funcionalidades clave en el eCommerce con React".
 
 El mismo e-commerce de las semanas anteriores, ahora con el **catálogo cargado
-dinámicamente** desde un archivo JSON externo mediante `useEffect`, seis estados
-gestionados con `useState` y ocho situaciones resueltas con renderizado condicional.
+dinámicamente** desde un archivo JSON externo mediante `useEffect`, siete estados
+gestionados con `useState`, un **hook propio** que encapsula la carga, y ocho situaciones
+resueltas con renderizado condicional.
 
 - **Sitio publicado:** <https://fcoxavierparra.github.io/PFY2201_S8_FPARRA/>
 - **Autor:** Francisco Javier Parra
@@ -52,21 +53,30 @@ nombre del repositorio porque así se publica en GitHub Pages: ver *Publicación
 
 ## Los hooks
 
-### `useState` — seis estados
+### `useState` — siete estados, en tres lugares distintos
 
-Cinco viven en `App.jsx` y bajan por props, porque los leen varias ramas del árbol:
+**Tres viven en el hook `useProductos`**, porque todos describen lo mismo: cómo va la
+obtención del catálogo.
 
 ```js
 const [productos, setProductos] = useState([]);       // el catálogo
 const [cargando, setCargando]   = useState(true);     // el fetch en vuelo
 const [error, setError]         = useState(null);     // si la carga falla
+```
+
+**Tres viven en `App.jsx`** y bajan por props, porque los leen varias ramas del árbol:
+
+```js
 const [carrito, setCarrito]     = useState([]);       // { id, cantidad }
 const [busqueda, setBusqueda]   = useState("");       // texto del buscador
 const [categoria, setCategoria] = useState("Todas");  // filtro por género
 ```
 
-El sexto, `menuAbierto`, **vive dentro de `Encabezado`**, porque no le importa a ningún
-otro componente. La regla es que el estado sube solo hasta donde hace falta compartirlo.
+**Y uno vive dentro de `Encabezado`**: `menuAbierto`, porque no le importa a ningún otro
+componente.
+
+La regla es que el estado sube solo hasta donde hace falta compartirlo — y, cuando un
+grupo de estados describe un mismo trabajo, se saca a un hook.
 
 `cargando` empieza en `true`: la aplicación nace cargando, no vacía. Si empezara en
 `false` se vería un instante el mensaje de "no hay juegos" antes de llegar los datos.
@@ -76,7 +86,33 @@ contador y los totales se **derivan** en cada renderizado a partir del estado. G
 en su propio `useState` obligaría a mantenerlos sincronizados a mano, y tarde o temprano
 se desincronizan.
 
+### `useProductos` — el hook propio
+
+Toda la obtención del catálogo —los tres estados y el efecto— vive en
+`src/hooks/useProductos.js`. `App` lo consume en una línea:
+
+```js
+const { productos, cargando, error } = useProductos();
+```
+
+**Por qué sacarlo de `App`.** `App` hacía dos trabajos que no tienen nada que ver entre
+sí: conseguir el catálogo y gestionar el carrito. Separados, `App` se lee como *qué* hace
+la aplicación y el hook guarda *cómo* llegan los datos. Si mañana el catálogo viniera de
+una API con autenticación, o hubiera que reintentar, o cachear, se cambiaría dentro del
+hook y `App` no se enteraría: sigue recibiendo los mismos tres valores.
+
+**Qué lo convierte en un hook** y no en una función normal: que llama a otros hooks
+(`useState` y `useEffect`). Esa es la única diferencia. Su nombre empieza por `use` porque
+es la convención que permite a React y al linter comprobar que se respetan las reglas de
+los hooks — llamarse siempre en el nivel superior, nunca dentro de un `if` ni de un bucle.
+
+**Devuelve un objeto y no un arreglo** a propósito. `useState` devuelve un arreglo porque
+solo trae dos cosas y quien lo usa les pone nombre al desestructurar. Aquí son tres y
+siempre se llaman igual, así que un objeto evita tener que recordar el orden.
+
 ### `useEffect` — cargar el catálogo
+
+Dentro del hook:
 
 ```js
 useEffect(() => {
@@ -155,6 +191,7 @@ lee, para saber de un vistazo qué hay dentro del carrito sin tener que abrirlo.
     ├── main.jsx                Punto de entrada: monta <App /> en el DOM
     ├── App.jsx                 Estado, efecto de carga y reparto por props
     ├── index.css               Capa de estilo propio sobre Bootstrap 5
+    ├── hooks/useProductos.js   Hook propio: carga del catálogo y sus estados
     ├── utils/formato.js        Funciones reutilizables: rutas, formato y filtros
     └── components/
         ├── Encabezado.jsx      Barra de navegación, buscador y contador

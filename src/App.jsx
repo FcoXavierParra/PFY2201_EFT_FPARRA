@@ -16,13 +16,15 @@
    Lo contrario también vale: el menú desplegable del encabezado guarda
    su estado dentro de Encabezado, porque no le importa a nadie más.
 
-   NOVEDAD DE LA SEMANA 8: el catálogo ya no se importa como módulo.
-   Ahora es estado, y lo llena un useEffect que lo pide por fetch a un
-   archivo JSON externo. De ahí salen también los estados de carga y
-   de error.
+   Y hay un tercer caso, el del catálogo: su estado no está aquí ni en
+   un componente, sino en el hook useProductos. No porque no se
+   comparta —se comparte—, sino porque conseguirlo es un trabajo
+   completo en sí mismo, con su carga y su error, que no tiene nada que
+   ver con gestionar el carrito. App lo consume en una línea y no
+   necesita saber de dónde salen los datos.
    ============================================================ */
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import Buscador from "./components/Buscador";
 import Carrito from "./components/Carrito";
@@ -31,30 +33,22 @@ import FiltroCategorias from "./components/FiltroCategorias";
 import Inicio from "./components/Inicio";
 import ListaProductos from "./components/ListaProductos";
 import PieDePagina from "./components/PieDePagina";
+import useProductos from "./hooks/useProductos";
 import {
     calcularAhorro,
     filtrarPorCategoria,
     filtrarPorNombre,
     obtenerCategorias,
     TODAS_LAS_CATEGORIAS,
-    URL_DATOS,
 } from "./utils/formato";
 
 function App() {
-    /* ---------- Estado con useState ---------- */
+    /* ---------- El catálogo, con su carga y su error ----------
+       Una línea, y detrás de ella tres useState y un useEffect que
+       viven en src/hooks/useProductos.js. */
+    const { productos, cargando, error } = useProductos();
 
-    /* EL CATÁLOGO. Arranca vacío y lo llena el useEffect de abajo.
-       En la Semana 7 esto era un import: un dato fijo, conocido al
-       compilar. Ahora es estado, porque llega después y puede fallar. */
-    const [productos, setProductos] = useState([]);
-
-    /* Mientras el fetch está en vuelo. Empieza en true: la aplicación
-       nace cargando, no vacía. Si empezara en false, se vería un
-       instante el mensaje de "no hay juegos" antes de los datos. */
-    const [cargando, setCargando] = useState(true);
-
-    /* Mensaje de error si la carga falla. null cuando todo va bien. */
-    const [error, setError] = useState(null);
+    /* ---------- Estado propio de la aplicación ---------- */
 
     /* El carrito guarda solo id y cantidad, no el producto entero.
        Duplicar aquí los datos del catálogo obligaría a mantener dos
@@ -67,52 +61,6 @@ function App() {
     /* La categoría elegida en el filtro */
     const [categoria, setCategoria] = useState(TODAS_LAS_CATEGORIAS);
 
-    /* ---------- Efecto: cargar el catálogo ----------
-
-       useEffect con [] como segundo argumento se ejecuta UNA vez, justo
-       después del primer renderizado. Es el lugar donde React espera
-       los efectos secundarios: pedir datos, suscribirse a algo, tocar
-       el exterior. Hacerlo durante el renderizado sería un error,
-       porque el renderizado tiene que ser una función pura.
-
-       La guarda "cancelado" existe porque en desarrollo StrictMode
-       monta el componente, lo desmonta y lo vuelve a montar para
-       destapar efectos mal escritos. Sin ella, la respuesta del primer
-       fetch intentaría actualizar un componente ya desmontado. */
-    useEffect(() => {
-        let cancelado = false;
-
-        fetch(URL_DATOS)
-            .then((respuesta) => {
-                /* Un 404 NO hace que fetch falle: hay que mirar el
-                   estado a mano antes de intentar leer el JSON. */
-                if (!respuesta.ok) {
-                    throw new Error(`El servidor respondió ${respuesta.status}`);
-                }
-                return respuesta.json();
-            })
-            .then((datos) => {
-                if (cancelado) return;
-                setProductos(datos.productos);
-                setCargando(false);
-            })
-            .catch((fallo) => {
-                if (cancelado) return;
-                /* Mensaje amigable para la pantalla; el detalle técnico
-                   queda en la consola, que es donde sirve. */
-                console.error("Fallo al cargar el catálogo:", fallo);
-                setError(
-                    "No pudimos cargar el catálogo. Revisa tu conexión y vuelve a intentarlo."
-                );
-                setCargando(false);
-            });
-
-        /* Función de limpieza: React la llama al desmontar */
-        return () => {
-            cancelado = true;
-        };
-    }, []);
-
     /* ---------- Valores derivados ----------
        Estos NO son estado: se recalculan en cada renderizado a partir
        del estado. Guardarlos en su propio useState es el error clásico,
@@ -120,7 +68,7 @@ function App() {
        o temprano se desincronizan. */
 
     /* Las categorías salen de los productos, así que ahora se calculan
-       en cada renderizado: hasta que el fetch responde, no se conocen. */
+       en cada renderizado: hasta que el hook responde, no se conocen. */
     const categorias = obtenerCategorias(productos);
 
     /* El mayor descuento del catálogo, para la presentación de portada.
