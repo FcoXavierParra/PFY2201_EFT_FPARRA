@@ -263,7 +263,38 @@ main section[id] {
 /* Quien navegue con teclado debe ver donde esta parado */
 a:focus-visible,
 button:focus-visible,
-input:focus-visible {
+input:focus-visible,
+textarea:focus-visible {
     outline: 2px solid var(--np-acento);
     outline-offset: 2px;
+}
+
+
+/* ============================================================
+   5. LA SECCION DE CONTACTO CON CSS GRID
+
+   Las demas rejillas del sitio son las de Bootstrap (row/col), que
+   por debajo son Flexbox. Aqui se usa CSS Grid propio porque el caso
+   es distinto: dos bloques con anchos relativos fijos (el formulario
+   el doble que la ficha de atencion), que Grid expresa en una sola
+   linea con fr.
+
+   En el telefono es una sola columna; desde 768 px, dos. gap con
+   clamp() sigue la sugerencia del docente de la Semana 3: el hueco
+   crece con la pantalla sin saltos entre puntos de corte.
+
+   align-items:start evita que la ficha corta se estire hasta el alto
+   del formulario, que con los mensajes de error cambia de tamano.
+   ============================================================ */
+.contacto-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(1rem, 3vw, 1.5rem);
+    align-items: start;
+}
+
+@media (min-width: 768px) {
+    .contacto-grid {
+        grid-template-columns: 2fr 1fr;
+    }
 }
