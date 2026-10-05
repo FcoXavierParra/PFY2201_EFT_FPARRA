@@ -8,79 +8,26 @@
    igual que el menú de Encabezado.
    Devuelve: la sección #contacto.
 
-   Tres estados locales:
-     - datos:   lo que hay escrito en cada campo.
-     - errores: un mensaje por campo inválido; vacío si todo está bien.
-     - enviado: si el último envío fue correcto, para mostrar el aviso.
-
-   Los campos son controlados, como el Buscador: el valor que se ve es
-   el del estado. La regla de qué es válido no está aquí sino en
-   utils/validacion.js; este componente solo decide cómo mostrarla.
+   El estado y la validación los pone el hook useFormulario, que
+   comparte con FormularioProducto; la regla de qué es válido está en
+   utils/validacion.js. A este componente solo le queda declarar sus
+   campos y decidir cómo se ven.
 
    No hay servidor: un envío válido se confirma en pantalla y el
    formulario se limpia. Conectarlo a un servicio de correo añadiría
    una dependencia externa que puede fallar el día de la corrección.
    ============================================================ */
 
-import { useState } from "react";
-
+import CampoFormulario from "./CampoFormulario";
+import useFormulario from "../hooks/useFormulario";
 import { validarContacto } from "../utils/validacion";
 
-/* Estado inicial, fuera del componente para reutilizarlo al limpiar */
-const FORMULARIO_VACIO = { nombre: "", email: "", mensaje: "" };
+/* Estado inicial, fuera del componente para no recrearlo en cada
+   renderizado; el hook lo reutiliza al limpiar */
+const CONTACTO_VACIO = { nombre: "", email: "", mensaje: "" };
 
 function FormularioContacto() {
-    const [datos, setDatos] = useState(FORMULARIO_VACIO);
-    const [errores, setErrores] = useState({});
-    const [enviado, setEnviado] = useState(false);
-
-    /**
-     * Actualiza un campo al escribir. Un solo manejador para los tres:
-     * el atributo name del input dice qué propiedad cambiar.
-     */
-    function alEscribir(evento) {
-        const { name, value } = evento.target;
-        const nuevos = { ...datos, [name]: value };
-        setDatos(nuevos);
-        setEnviado(false);
-
-        /* Si el campo ya estaba marcado, se revalida en cada tecla para
-           que el error desaparezca en cuanto se corrige. Los campos sin
-           error no se validan al escribir: marcar en rojo algo que el
-           usuario aún no termina de escribir es molesto. */
-        if (errores[name]) {
-            setErrores({ ...errores, [name]: validarContacto(nuevos)[name] });
-        }
-    }
-
-    /** Valida todo al enviar. Solo si no hay errores se da por enviado. */
-    function alEnviar(evento) {
-        /* Sin esto el navegador recargaría la página al enviar */
-        evento.preventDefault();
-
-        const encontrados = validarContacto(datos);
-        setErrores(encontrados);
-
-        if (Object.keys(encontrados).length === 0) {
-            setEnviado(true);
-            setDatos(FORMULARIO_VACIO);
-        }
-    }
-
-    /* Clases y atributos de un campo según tenga error o no.
-       is-invalid y invalid-feedback son de Bootstrap: el borde rojo y
-       el mensaje bajo el campo salen sin CSS propio. */
-    function propsDeCampo(nombre) {
-        return {
-            id: `contacto-${nombre}`,
-            name: nombre,
-            value: datos[nombre],
-            onChange: alEscribir,
-            className: `form-control${errores[nombre] ? " is-invalid" : ""}`,
-            "aria-invalid": Boolean(errores[nombre]),
-            "aria-describedby": errores[nombre] ? `error-${nombre}` : undefined,
-        };
-    }
+    const formulario = useFormulario("contacto", CONTACTO_VACIO, validarContacto);
 
     return (
         <section id="contacto" className="pt-5">
@@ -94,7 +41,7 @@ function FormularioContacto() {
                     <div className="card-body">
                         {/* Aviso de envío correcto: solo tras un envío
                             válido, y se oculta en cuanto se vuelve a escribir */}
-                        {enviado && (
+                        {formulario.enviado && (
                             <div className="alert alert-success" role="status">
                                 ¡Gracias! Recibimos tu mensaje y te responderemos
                                 a la brevedad.
@@ -102,43 +49,31 @@ function FormularioContacto() {
                         )}
 
                         {/* noValidate apaga la validación del navegador: los
-                            mensajes son los nuestros y se ven igual en todos */}
-                        <form noValidate onSubmit={alEnviar}>
-                            <div className="mb-3">
-                                <label className="form-label" htmlFor="contacto-nombre">
-                                    Nombre
-                                </label>
-                                <input type="text" autoComplete="name" {...propsDeCampo("nombre")} />
-                                {errores.nombre && (
-                                    <div id="error-nombre" className="invalid-feedback">
-                                        {errores.nombre}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="mb-3">
-                                <label className="form-label" htmlFor="contacto-email">
-                                    Correo electrónico
-                                </label>
-                                <input type="email" autoComplete="email" {...propsDeCampo("email")} />
-                                {errores.email && (
-                                    <div id="error-email" className="invalid-feedback">
-                                        {errores.email}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="mb-3">
-                                <label className="form-label" htmlFor="contacto-mensaje">
-                                    Mensaje
-                                </label>
-                                <textarea rows="4" {...propsDeCampo("mensaje")} />
-                                {errores.mensaje && (
-                                    <div id="error-mensaje" className="invalid-feedback">
-                                        {errores.mensaje}
-                                    </div>
-                                )}
-                            </div>
+                            mensajes son los nuestros y se ven igual en todos.
+                            Contactar no cambia nada en la aplicación, así que
+                            el envío válido no hace nada más que confirmarse. */}
+                        <form noValidate onSubmit={formulario.manejarEnvio(() => {})}>
+                            <CampoFormulario
+                                formulario={formulario}
+                                nombre="nombre"
+                                etiqueta="Nombre"
+                                type="text"
+                                autoComplete="name"
+                            />
+                            <CampoFormulario
+                                formulario={formulario}
+                                nombre="email"
+                                etiqueta="Correo electrónico"
+                                type="email"
+                                autoComplete="email"
+                            />
+                            <CampoFormulario
+                                formulario={formulario}
+                                nombre="mensaje"
+                                etiqueta="Mensaje"
+                                como="textarea"
+                                rows="4"
+                            />
 
                             <button type="submit" className="btn btn-primary">
                                 Enviar mensaje
