@@ -12,8 +12,7 @@
    a leerse como QUÉ hace la aplicación, y este archivo guarda CÓMO
    llegan los datos. Si mañana el catálogo viniera de una API con
    autenticación, o hubiera que reintentar, o cachear, se cambiaría aquí
-   dentro y App no se enteraría: sigue recibiendo los mismos tres
-   valores.
+   dentro y App no se enteraría: sigue recibiendo los mismos valores.
 
    ¿Qué convierte a esto en un hook y no en una función normal?
    Que llama a otros hooks (useState y useEffect). Esa es la única
@@ -24,7 +23,7 @@
 
    Devuelve un objeto y no un arreglo a propósito. useState devuelve un
    arreglo porque solo trae dos cosas y quien lo usa les pone nombre al
-   desestructurar. Aquí son tres y siempre se llaman igual, así que un
+   desestructurar. Aquí son cinco y siempre se llaman igual, así que un
    objeto evita tener que recordar el orden.
    ============================================================ */
 
@@ -34,10 +33,12 @@ import { URL_DATOS } from "../utils/formato";
 
 /**
  * Carga el catálogo de productos desde el archivo JSON del sitio.
- * @returns {{productos: Array, cargando: boolean, error: string|null}}
+ * @returns {{productos: Array, cargando: boolean, error: string|null,
+ *   agregarProducto: Function, quitarProducto: Function}}
  *   productos: el catálogo, o un arreglo vacío mientras no haya llegado.
  *   cargando: true mientras la petición está en vuelo.
  *   error: mensaje amigable si la carga falló, o null.
+ *   agregarProducto / quitarProducto: cambian el catálogo en memoria.
  */
 export default function useProductos() {
     /* Arranca vacío: los datos llegan después del primer renderizado */
@@ -98,5 +99,36 @@ export default function useProductos() {
         };
     }, []);
 
-    return { productos, cargando, error };
+    /* ---------- Cambios sobre el catálogo ----------
+       Desde la EFT el catálogo no solo se lee: también se le agregan y
+       quitan videojuegos. Los cambios viven solo en el estado: al
+       recargar la página vuelve el catálogo del JSON, porque un sitio
+       estático no tiene dónde guardarlos.
+
+       Se exponen dos funciones con nombre y no setProductos: así quien
+       usa el hook puede agregar o quitar, pero no reemplazar el catálogo
+       entero por cualquier cosa. */
+
+    /**
+     * Agrega un videojuego al final del catálogo.
+     * @param {Object} nuevo - El producto sin id; el id se calcula aquí.
+     */
+    function agregarProducto(nuevo) {
+        setProductos((actual) => {
+            /* El siguiente al mayor id existente. No sirve actual.length
+               + 1: si se quitó un juego, ese id podría estar repetido. */
+            const id = Math.max(0, ...actual.map((p) => p.id)) + 1;
+            return [...actual, { ...nuevo, id }];
+        });
+    }
+
+    /**
+     * Quita un videojuego del catálogo.
+     * @param {number} id - Identificador del producto.
+     */
+    function quitarProducto(id) {
+        setProductos((actual) => actual.filter((p) => p.id !== id));
+    }
+
+    return { productos, cargando, error, agregarProducto, quitarProducto };
 }

@@ -31,6 +31,7 @@ import Carrito from "./components/Carrito";
 import Encabezado from "./components/Encabezado";
 import FiltroCategorias from "./components/FiltroCategorias";
 import FormularioContacto from "./components/FormularioContacto";
+import FormularioProducto from "./components/FormularioProducto";
 import Inicio from "./components/Inicio";
 import ListaProductos from "./components/ListaProductos";
 import PieDePagina from "./components/PieDePagina";
@@ -47,7 +48,8 @@ function App() {
     /* ---------- El catálogo, con su carga y su error ----------
        Una línea, y detrás de ella tres useState y un useEffect que
        viven en src/hooks/useProductos.js. */
-    const { productos, cargando, error } = useProductos();
+    const { productos, cargando, error, agregarProducto, quitarProducto } =
+        useProductos();
 
     /* ---------- Estado propio de la aplicación ---------- */
 
@@ -151,6 +153,35 @@ function App() {
         setCarrito([]);
     }
 
+    /* ---------- Acciones sobre el catálogo ---------- */
+
+    /**
+     * Quita un videojuego del catálogo y deja la aplicación coherente.
+     *
+     * Quitarlo solo del catálogo no basta, por dos efectos en cadena:
+     *  - si estaba en el carrito, su línea quedaría apuntando a un
+     *    producto que ya no existe, y el carrito se rompería al pintarla;
+     *  - si era el último de la categoría elegida, el botón de esa
+     *    categoría desaparece del filtro pero el filtro seguiría puesto,
+     *    mostrando "no hay juegos" sin forma visible de quitarlo.
+     *
+     * Por eso esta función vive en App, que es quien conoce los tres
+     * estados, y no en el hook, que solo conoce el catálogo.
+     * @param {number} id - Identificador del producto.
+     */
+    function quitarDelCatalogo(id) {
+        quitarProducto(id);
+        eliminarDelCarrito(id);
+
+        const quitado = productos.find((p) => p.id === id);
+        const quedanDeSuCategoria = productos.some(
+            (p) => p.id !== id && p.genero === quitado.genero
+        );
+        if (categoria === quitado.genero && !quedanDeSuCategoria) {
+            setCategoria(TODAS_LAS_CATEGORIAS);
+        }
+    }
+
     /* ---------- Interfaz ---------- */
 
     return (
@@ -190,7 +221,21 @@ function App() {
                             error={error}
                             idsEnCarrito={idsEnCarrito}
                             alAgregar={agregarAlCarrito}
+                            alQuitar={quitarDelCatalogo}
                         />
+
+                        {/* Agregar juegos solo tiene sentido cuando el
+                            catálogo existe. Las categorías se le pasan sin
+                            "Todas", que no es una categoría real. */}
+                        {!cargando && !error && (
+                            <FormularioProducto
+                                catalogo={productos}
+                                categorias={categorias.filter(
+                                    (c) => c !== TODAS_LAS_CATEGORIAS
+                                )}
+                                alAgregar={agregarProducto}
+                            />
+                        )}
                     </div>
 
                     <aside className="col-lg-4">

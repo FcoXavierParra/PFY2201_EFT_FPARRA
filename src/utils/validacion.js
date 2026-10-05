@@ -46,3 +46,58 @@ export function validarContacto({ nombre, email, mensaje }) {
 
     return errores;
 }
+
+/**
+ * ¿Es el texto un número entero de pesos mayor que cero?
+ * Los campos de un formulario siempre llegan como texto, aunque el
+ * input sea type="number": de ahí la conversión.
+ * @param {string} texto - Lo que hay escrito en el campo.
+ * @returns {boolean}
+ */
+function esPrecioValido(texto) {
+    const valor = Number(texto);
+    return texto.trim() !== "" && Number.isInteger(valor) && valor > 0;
+}
+
+/**
+ * Valida los datos del formulario para agregar un videojuego.
+ * @param {{ nombre: string, genero: string, precio: string,
+ *   oferta: string, descripcion: string }} datos
+ * @param {Array} catalogo - Los productos actuales, para no repetir nombre.
+ * @returns {Object<string, string>} Un mensaje por cada campo inválido.
+ */
+export function validarProducto(datos, catalogo) {
+    const errores = {};
+    const nombre = datos.nombre.trim();
+
+    if (nombre === "") {
+        errores.nombre = "Escribe el nombre del videojuego.";
+    } else if (
+        /* Sin distinguir mayúsculas: "elden realms" es el mismo juego */
+        catalogo.some((p) => p.nombre.toLowerCase() === nombre.toLowerCase())
+    ) {
+        errores.nombre = "Ya hay un videojuego con ese nombre en el catálogo.";
+    }
+
+    if (datos.genero.trim() === "") {
+        errores.genero = "Elige o escribe una categoría.";
+    }
+
+    if (!esPrecioValido(datos.precio)) {
+        errores.precio = "Escribe el precio normal en pesos, sin puntos ni decimales.";
+    }
+
+    if (!esPrecioValido(datos.oferta)) {
+        errores.oferta = "Escribe el precio de oferta en pesos, sin puntos ni decimales.";
+    } else if (esPrecioValido(datos.precio) && Number(datos.oferta) > Number(datos.precio)) {
+        /* La tarjeta tacha el precio normal: una "oferta" más cara no
+           tendría sentido y el porcentaje de ahorro saldría negativo */
+        errores.oferta = "La oferta no puede ser mayor que el precio normal.";
+    }
+
+    if (datos.descripcion.trim().length < LARGO_MINIMO_MENSAJE) {
+        errores.descripcion = `La descripción debe tener al menos ${LARGO_MINIMO_MENSAJE} caracteres.`;
+    }
+
+    return errores;
+}

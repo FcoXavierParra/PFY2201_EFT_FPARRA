@@ -9,7 +9,7 @@
      - cargando: true mientras el fetch está en vuelo.
      - error: mensaje si la carga falló, null si todo fue bien.
      - idsEnCarrito: qué productos ya están en el carrito.
-     - alAgregar: función que se pasa tal cual a cada tarjeta.
+     - alAgregar, alQuitar: funciones que se pasan tal cual a cada tarjeta.
 
    Devuelve: la sección del catálogo.
 
@@ -20,7 +20,8 @@
 
      1. cargando  -> aviso de carga
      2. error     -> mensaje amigable
-     3. sin resultados -> explica por cuál filtro se quedó vacío
+     3. sin resultados -> explica por cuál filtro se quedó vacío, o
+                          que el catálogo entero está vacío
      4. con productos  -> la rejilla
 
    Las tres primeras salen antes con un return, que es más legible que
@@ -38,6 +39,7 @@ function ListaProductos({
     error,
     idsEnCarrito,
     alAgregar,
+    alQuitar,
 }) {
     const hayCategoria = categoria !== TODAS_LAS_CATEGORIAS;
 
@@ -75,6 +77,22 @@ function ListaProductos({
        explica por cuál de los dos se quedó sin resultados: el texto, la
        categoría, o ambos a la vez. */
     if (productos.length === 0) {
+        /* Sin filtros activos, una lista vacía solo puede significar que
+           se quitaron todos los juegos: decir "prueba con otro nombre"
+           no tendría sentido. */
+        if (busqueda === "" && !hayCategoria) {
+            return (
+                <section id="catalogo" className="pt-4">
+                    <h2>Catálogo</h2>
+                    <p className="alert alert-secondary mt-3" role="status">
+                        El catálogo está vacío. Agrega un juego con el
+                        formulario o recarga la página para recuperar el
+                        catálogo original.
+                    </p>
+                </section>
+            );
+        }
+
         return (
             <section id="catalogo" className="pt-4">
                 <h2>Catálogo</h2>
@@ -115,6 +133,7 @@ function ListaProductos({
                         producto={producto}
                         yaEsta={idsEnCarrito.includes(producto.id)}
                         alAgregar={alAgregar}
+                        alQuitar={alQuitar}
                     />
                 ))}
             </div>

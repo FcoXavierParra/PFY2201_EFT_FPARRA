@@ -6,11 +6,14 @@
      - producto: el objeto con nombre, precio, oferta, descripción e imagen.
      - yaEsta: true si el producto ya está en el carrito.
      - alAgregar: función que App entrega para sumar el producto al carrito.
+     - alQuitar: función que App entrega para quitarlo del catálogo.
 
    Devuelve: la tarjeta completa de ese producto.
 
    Es el componente reutilizable por excelencia de la aplicación: se
-   instancia nueve veces con datos distintos y la misma estructura.
+   instancia una vez por producto con datos distintos y la misma
+   estructura, también para los juegos que se agregan desde el
+   formulario.
 
    La imagen se compone con rutaImagen(), porque desde la Semana 8 los
    SVG viven en public/ y Vite no les reescribe la ruta.
@@ -23,7 +26,7 @@ import {
     rutaImagen,
 } from "../utils/formato";
 
-function TarjetaProducto({ producto, yaEsta, alAgregar }) {
+function TarjetaProducto({ producto, yaEsta, alAgregar, alQuitar }) {
     /* Se calculan una sola vez y se usan abajo, para no repetir la
        operación dentro del JSX */
     const ahorro = calcularAhorro(producto.precio, producto.oferta);
@@ -101,6 +104,21 @@ function TarjetaProducto({ producto, yaEsta, alAgregar }) {
                         onClick={() => alAgregar(producto.id)}
                     >
                         {yaEsta ? "En el carrito ✓" : "Agregar al carrito"}
+                    </button>
+
+                    {/* Quitar del CATÁLOGO, no del carrito: para eso están
+                        los botones del carrito. Va discreto, como enlace,
+                        para que no compita con la acción principal de la
+                        tarjeta. El aria-label dice qué juego se quita,
+                        porque "Quitar del catálogo" repetido nueve veces no
+                        le sirve a quien usa un lector de pantalla. */}
+                    <button
+                        type="button"
+                        className="btn btn-link btn-sm text-body-secondary mt-2"
+                        onClick={() => alQuitar(producto.id)}
+                        aria-label={`Quitar ${producto.nombre} del catálogo`}
+                    >
+                        Quitar del catálogo
                     </button>
                 </div>
             </div>
