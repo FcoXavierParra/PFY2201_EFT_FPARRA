@@ -1,7 +1,7 @@
 /* ============================================================
    HOOK PERSONALIZADO useProductos — Nexus Play
    PFY2201 Desarrollo Frontend I · Duoc UC
-   Actividad Sumativa 3 (Semana 8)
+   Evaluación Final Transversal (Semana 9)
 
    Encapsula TODO lo que implica traer el catálogo: el estado donde
    queda, el estado de carga, el de error y el efecto que lo pide.

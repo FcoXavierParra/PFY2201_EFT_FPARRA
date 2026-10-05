@@ -1,7 +1,7 @@
 /* ============================================================
    COMPONENTE App — Nexus Play
    PFY2201 Desarrollo Frontend I · Duoc UC
-   Actividad Sumativa 3 (Semana 8)
+   Evaluación Final Transversal (Semana 9)
 
    Componente raíz. Aquí vive el estado que comparten varios
    componentes y desde aquí baja por props.

@@ -1,7 +1,7 @@
 /* ============================================================
    PUNTO DE ENTRADA — Nexus Play
    PFY2201 Desarrollo Frontend I · Duoc UC
-   Actividad Sumativa 3 (Semana 8)
+   Evaluación Final Transversal (Semana 9)
 
    Monta el componente App dentro del <div id="root"> de index.html.
    Es el único archivo que toca el DOM directamente: de ahí para

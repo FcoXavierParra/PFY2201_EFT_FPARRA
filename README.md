@@ -8,7 +8,7 @@ dinámicamente** desde un archivo JSON externo mediante `useEffect`, siete estad
 gestionados con `useState`, un **hook propio** que encapsula la carga, y ocho situaciones
 resueltas con renderizado condicional.
 
-- **Sitio publicado:** <https://fcoxavierparra.github.io/PFY2201_S8_FPARRA/>
+- **Sitio publicado:** <https://fcoxavierparra.github.io/PFY2201_EFT_FPARRA/>
 - **Autor:** Francisco Javier Parra
 
 ## Qué cambia respecto de la Semana 7
@@ -40,7 +40,7 @@ npm install     # instala las dependencias
 npm run dev     # servidor de desarrollo
 ```
 
-El proyecto se abre en <http://localhost:5173/PFY2201_S8_FPARRA/>. La ruta lleva el
+El proyecto se abre en <http://localhost:5173/PFY2201_EFT_FPARRA/>. La ruta lleva el
 nombre del repositorio porque así se publica en GitHub Pages: ver *Publicación*.
 
 | Comando | Qué hace |
@@ -208,11 +208,11 @@ lee, para saber de un vistazo qué hay dentro del carrito sin tener que abrirlo.
 
 ## Publicación
 
-El sitio se sirve desde `https://fcoxavierparra.github.io/PFY2201_S8_FPARRA/`, que es un
+El sitio se sirve desde `https://fcoxavierparra.github.io/PFY2201_EFT_FPARRA/`, que es un
 subdirectorio y no la raíz del dominio. Por eso `vite.config.js` declara:
 
 ```js
-base: '/PFY2201_S8_FPARRA/'
+base: '/PFY2201_EFT_FPARRA/'
 ```
 
 **Y por eso el JSON y las imágenes se piden con la base delante.** Vite reescribe las

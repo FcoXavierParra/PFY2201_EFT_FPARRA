@@ -1,7 +1,7 @@
 /* ============================================================
    UTILIDADES REUTILIZABLES — Nexus Play
    PFY2201 Desarrollo Frontend I · Duoc UC
-   Actividad Sumativa 3 (Semana 8)
+   Evaluación Final Transversal (Semana 9)
 
    Funciones puras, sin estado ni dependencia de React: reciben
    valores y devuelven valores. Viven fuera de los componentes
@@ -19,7 +19,7 @@ export const DESCUENTO_DESTACADO = 30;
 
    Vite NO reescribe las rutas de los archivos que viven en public/:
    los copia tal cual al build. Como el sitio se publica en un
-   subdirectorio de GitHub Pages (/PFY2201_S8_FPARRA/), la ruta hay
+   subdirectorio de GitHub Pages (/PFY2201_EFT_FPARRA/), la ruta hay
    que componerla a mano con la base.
 
    Escribir "/data/productos.json" a pelo funciona en local y da 404
