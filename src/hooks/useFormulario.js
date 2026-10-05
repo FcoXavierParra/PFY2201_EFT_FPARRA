@@ -70,11 +70,16 @@ export default function useFormulario(prefijo, inicial, validar) {
             evento.preventDefault();
 
             const encontrados = validar(datos);
+            const esValido = Object.keys(encontrados).length === 0;
             setErrores(encontrados);
 
-            if (Object.keys(encontrados).length === 0) {
+            /* Se fija en los dos casos: si quedara el true de un envío
+               anterior, un segundo envío con errores mostraría a la vez
+               los errores y el aviso de éxito */
+            setEnviado(esValido);
+
+            if (esValido) {
                 alSerValido(datos);
-                setEnviado(true);
                 setDatos(inicial);
             }
         };
