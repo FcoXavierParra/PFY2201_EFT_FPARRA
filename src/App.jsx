@@ -30,6 +30,7 @@ import Buscador from "./components/Buscador";
 import Carrito from "./components/Carrito";
 import Encabezado from "./components/Encabezado";
 import FiltroCategorias from "./components/FiltroCategorias";
+import FormularioContacto from "./components/FormularioContacto";
 import Inicio from "./components/Inicio";
 import ListaProductos from "./components/ListaProductos";
 import PieDePagina from "./components/PieDePagina";
@@ -201,6 +202,9 @@ function App() {
                         />
                     </aside>
                 </div>
+
+                {/* El formulario no recibe props: su estado es solo suyo */}
+                <FormularioContacto />
             </main>
 
             <PieDePagina />

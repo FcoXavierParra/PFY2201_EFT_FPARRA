@@ -110,7 +110,7 @@ function Encabezado({ unidades, children }) {
                             <li className="nav-item">
                                 <a
                                     className="nav-link"
-                                    href="#pie"
+                                    href="#contacto"
                                     onClick={irASeccion}
                                 >
                                     Contacto
