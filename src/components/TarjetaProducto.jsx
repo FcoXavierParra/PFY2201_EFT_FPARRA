@@ -7,7 +7,8 @@
      - yaEsta: true si el producto ya está en el carrito.
      - alAgregar: función que App entrega para sumar el producto al carrito.
      - alQuitarDelCarrito: función para sacarlo del carrito.
-     - alRetirar: función para retirarlo del catálogo.
+     - alRetirar: función para retirarlo del catálogo. Solo llega en
+       modo administración; si es null, la tarjeta no ofrece retirar.
 
    Devuelve: la tarjeta completa de ese producto.
 
@@ -145,17 +146,21 @@ function TarjetaProducto({
                         tienda sin que nadie lo esperara.
                         El aria-label nombra el juego: "Retirar del catálogo"
                         repetido en cada tarjeta no le sirve a un lector de
-                        pantalla. */}
-                    <div className="border-top mt-3 pt-3 text-end">
-                        <button
-                            type="button"
-                            className="btn btn-outline-danger btn-sm"
-                            onClick={confirmarRetiro}
-                            aria-label={`Retirar ${producto.nombre} del catálogo`}
-                        >
-                            Retirar del catálogo
-                        </button>
-                    </div>
+                        pantalla.
+                        Solo existe en modo administración: App pasa alRetirar
+                        únicamente en ese modo, y en la vista pública llega null. */}
+                    {alRetirar && (
+                        <div className="border-top mt-3 pt-3 text-end">
+                            <button
+                                type="button"
+                                className="btn btn-outline-danger btn-sm"
+                                onClick={confirmarRetiro}
+                                aria-label={`Retirar ${producto.nombre} del catálogo`}
+                            >
+                                Retirar del catálogo
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </article>

@@ -1,9 +1,17 @@
 /* ============================================================
    COMPONENTE PieDePagina
-   Información de cierre del sitio: contacto y redes sociales.
+   Información de cierre del sitio: contacto, redes sociales y el
+   acceso al modo administración.
 
-   No recibe props: su contenido es fijo.
+   Recibe (props):
+     - modoAdmin: si el sitio está en modo administración.
+     - alCambiarModo: función que App entrega para entrar o salir.
+
    Devuelve: el <footer> del sitio.
+
+   El acceso va aquí y no en la barra porque es una herramienta de la
+   tienda, no algo que el cliente necesite: en los sitios reales el
+   enlace de administración suele estar al pie y discreto.
 
    Los textos vienen de la Semana 6 sin cambios. Se mantiene <address>,
    que es la etiqueta semántica para datos de contacto, y el pie
@@ -11,7 +19,7 @@
    Semana 1 avisó de no alojar aquí secciones completas de contenido.
    ============================================================ */
 
-function PieDePagina() {
+function PieDePagina({ modoAdmin, alCambiarModo }) {
     return (
         <footer id="pie" className="border-top border-3 border-primary py-5">
             <div className="container">
@@ -67,10 +75,24 @@ function PieDePagina() {
                     </div>
 
                     <div className="col-12 border-top border-secondary pt-3 text-center">
-                        <p className="mb-0 small text-body-secondary">
+                        <p className="mb-2 small text-body-secondary">
                             Copyright &copy; 2026 Nexus Play. Todos los derechos
                             reservados.
                         </p>
+
+                        {/* El texto cambia según el estado: el mismo botón
+                            sirve para entrar y para salir. aria-pressed le
+                            dice al lector de pantalla si está activo. */}
+                        <button
+                            type="button"
+                            className="btn btn-link btn-sm text-body-secondary p-0"
+                            onClick={alCambiarModo}
+                            aria-pressed={modoAdmin}
+                        >
+                            {modoAdmin
+                                ? "Salir del modo administración"
+                                : "Modo administración"}
+                        </button>
                     </div>
                 </div>
             </div>

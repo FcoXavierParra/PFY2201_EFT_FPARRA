@@ -26,6 +26,7 @@
 
 import { useState } from "react";
 
+import AvisoAdministracion from "./components/AvisoAdministracion";
 import Buscador from "./components/Buscador";
 import Carrito from "./components/Carrito";
 import Encabezado from "./components/Encabezado";
@@ -63,6 +64,13 @@ function App() {
 
     /* La categoría elegida en el filtro */
     const [categoria, setCategoria] = useState(TODAS_LAS_CATEGORIAS);
+
+    /* Vista pública (false) o modo administración (true). En la pública
+       se compra y se contacta; agregar y retirar juegos solo aparece en
+       la de administración. Vive en App porque lo leen tres ramas: el
+       pie que lo activa, las tarjetas y el formulario de productos.
+       Sin contraseña a propósito: ver AvisoAdministracion.jsx. */
+    const [modoAdmin, setModoAdmin] = useState(false);
 
     /* ---------- Valores derivados ----------
        Estos NO son estado: se recalculan en cada renderizado a partir
@@ -196,6 +204,10 @@ function App() {
                 parecía solo un catálogo. Por debajo de 992 px se apilan, y
                 para llegar al carrito está el enlace del encabezado. */}
             <main className="container pb-4">
+                {modoAdmin && (
+                    <AvisoAdministracion alSalir={() => setModoAdmin(false)} />
+                )}
+
                 <Inicio
                     totalProductos={productos.length}
                     ahorroMaximo={ahorroMaximo}
@@ -222,13 +234,16 @@ function App() {
                             idsEnCarrito={idsEnCarrito}
                             alAgregar={agregarAlCarrito}
                             alQuitarDelCarrito={eliminarDelCarrito}
-                            alRetirar={quitarDelCatalogo}
+                            /* Fuera del modo administración la tarjeta no
+                               recibe la función, y sin ella no pinta el
+                               botón de retirar */
+                            alRetirar={modoAdmin ? quitarDelCatalogo : null}
                         />
 
-                        {/* Agregar juegos solo tiene sentido cuando el
+                        {/* Solo en modo administración, y solo cuando el
                             catálogo existe. Las categorías se le pasan sin
                             "Todas", que no es una categoría real. */}
-                        {!cargando && !error && (
+                        {modoAdmin && !cargando && !error && (
                             <FormularioProducto
                                 catalogo={productos}
                                 categorias={categorias.filter(
@@ -253,7 +268,10 @@ function App() {
                 <FormularioContacto />
             </main>
 
-            <PieDePagina />
+            <PieDePagina
+                modoAdmin={modoAdmin}
+                alCambiarModo={() => setModoAdmin((actual) => !actual)}
+            />
         </>
     );
 }

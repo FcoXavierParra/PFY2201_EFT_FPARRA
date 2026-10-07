@@ -95,30 +95,42 @@ teléfono se despliega con el botón ☰ y se cierra sola al elegir una sección
 | **Buscador** (en la barra) | Filtra por nombre **mientras se escribe**. Se combina con la categoría elegida |
 | **Catálogo** | Cada tarjeta muestra imagen, nombre, categoría, descripción, precio normal y de oferta |
 | **Carrito** | Ver los productos agregados, cambiar cantidades, eliminar una línea o vaciarlo |
-| **Agregar un videojuego** | Sumar un juego nuevo al catálogo |
+| **Agregar un videojuego** | Sumar un juego nuevo al catálogo. *Solo en modo administración* |
+| **Pie de página** | Datos de la tienda, redes y el acceso al **modo administración** |
 | **Contacto** | Escribirle al administrador del sitio |
 
 ### Comprar
 
 1. En una tarjeta, pulsa **Agregar al carrito**. El botón pasa a decir **En el carrito ✓**
    y el contador de la barra suma uno.
-2. Pulsarlo otra vez suma otra unidad.
+2. Pulsarlo otra vez suma otra unidad. Bajo él aparece **Quitar del carrito**, que lo saca
+   del carrito sin tocar el catálogo.
 3. En el carrito, **−** quita una unidad, **Eliminar** quita la línea y **Vaciar carrito**
    lo deja vacío. El total y el ahorro se recalculan solos.
 
 En pantallas anchas el carrito queda fijo a la derecha del catálogo; en el teléfono va
 debajo, y se llega a él con el botón del carrito de la barra.
 
-### Agregar y quitar videojuegos
+### Modo administración: agregar y retirar videojuegos
 
-- **Agregar:** completa el formulario *Agregar un videojuego*. La categoría sugiere las
-  que existen, pero se puede escribir una nueva: aparecerá sola en el filtro. El juego
-  se suma al final del catálogo con una portada genérica.
-- **Quitar:** pulsa **Quitar del catálogo** en su tarjeta. Si estaba en el carrito, sale
-  también de ahí.
+El sitio tiene dos vistas. La **pública**, con la que se abre, sirve para comprar y
+contactar. La de **administración** añade las herramientas para cambiar el catálogo.
 
-Los cambios duran **hasta recargar la página**: el sitio es estático y no tiene dónde
-guardarlos. Al recargar vuelve el catálogo original.
+1. Al final de la página, en el pie, pulsa **Modo administración**. Arriba aparece un
+   aviso amarillo que indica que el modo está activo.
+2. **Agregar:** completa el formulario *Agregar un videojuego*, bajo el catálogo. La
+   categoría sugiere las que existen, pero se puede escribir una nueva: aparecerá sola
+   en el filtro. El juego se suma al final del catálogo con una portada genérica.
+3. **Retirar:** cada tarjeta muestra **Retirar del catálogo**, que pide confirmación. Si
+   el juego estaba en el carrito, sale también de ahí.
+4. Para volver a la vista pública, pulsa **Salir del modo administración** en el aviso o
+   en el pie.
+
+**Sin contraseña, a propósito.** En un sitio estático cualquier contraseña quedaría
+escrita en el JavaScript publicado y cualquiera podría leerla, así que no protegería
+nada. Tampoco hace falta: los cambios viven solo en el navegador de quien los hace,
+nadie más los ve y **desaparecen al recargar la página**. El modo separa las dos vistas
+para que el cliente no vea herramientas que no son para él; no pretende protegerlas.
 
 ### Contactar
 
@@ -155,8 +167,8 @@ rojo con su mensaje debajo, y el mensaje desaparece en cuanto se corrige.
 | Tarjetas generadas dinámicamente | `ListaProductos` recorre el arreglo con `.map()` y crea un `TarjetaProducto` por juego |
 | Filtro por categoría | `FiltroCategorias`; las categorías se calculan desde los datos |
 | Validación del formulario de contacto | `utils/validacion.js` + `FormularioContacto` |
-| Componentes React | 13 componentes y 2 hooks propios en `src/components/` y `src/hooks/`, ver [Estructura](#estructura) |
-| State para agregar o eliminar videojuegos | `useProductos` expone `agregarProducto` y `quitarProducto` |
+| Componentes React | 14 componentes y 2 hooks propios en `src/components/` y `src/hooks/`, ver [Estructura](#estructura) |
+| State para agregar o eliminar videojuegos | `useProductos` expone `agregarProducto` y `quitarProducto`; se usan desde el modo administración (estado `modoAdmin` en `App`) |
 | Carga dinámica desde un archivo | `useEffect` + `fetch` en `useProductos` |
 | Props que conectan componentes | El filtro, el buscador y el carrito cambian el estado de `App`, que baja a `ListaProductos` por props |
 
@@ -172,7 +184,7 @@ de estados describe un mismo trabajo, se saca a un hook.
 | Dónde | Estado | Por qué ahí |
 |---|---|---|
 | `hooks/useProductos.js` | `productos`, `cargando`, `error` | Describen un solo trabajo: conseguir el catálogo |
-| `App.jsx` | `carrito`, `busqueda`, `categoria` | Los leen varias ramas del árbol: barra, catálogo y carrito |
+| `App.jsx` | `carrito`, `busqueda`, `categoria`, `modoAdmin` | Los leen varias ramas del árbol: barra, catálogo, carrito, formulario y pie |
 | `hooks/useFormulario.js` | `datos`, `errores`, `enviado` | Uno por formulario: a nadie más le importa lo que se está escribiendo |
 | `Encabezado.jsx` | `menuAbierto` | Solo le importa a la barra |
 
@@ -185,7 +197,7 @@ propio `useState` obligaría a sincronizarlos a mano.
 ```
 App  ── productos filtrados, idsEnCarrito ──▶ ListaProductos ──▶ TarjetaProducto
  ▲                                                                   │
- └──────────── alAgregar(id) · alQuitar(id) ◀────────────────────────┘
+ └──── alAgregar(id) · alQuitarDelCarrito(id) · alRetirar(id) ◀──────┘
 ```
 
 Los datos **bajan** por props; los cambios **suben** como llamadas a funciones que `App`
@@ -222,7 +234,8 @@ Sin él, el formulario de contacto y el de producto repetirían las mismas cuare
 | Error de carga | Mensaje amigable; el resto del sitio sigue en pie |
 | Filtros sin coincidencias | Aviso que dice por cuál filtro se quedó vacío |
 | Catálogo vacío | Aviso que explica cómo recuperarlo |
-| Producto en el carrito | Su botón dice "En el carrito ✓" y cambia de estilo |
+| Producto en el carrito | Su botón dice "En el carrito ✓", cambia de estilo y aparece "Quitar del carrito" |
+| Modo administración | Aviso arriba, formulario de agregar y botón "Retirar" en cada tarjeta; el pie cambia a "Salir" |
 | Carrito vacío | "Tu carrito está vacío…" |
 | Oferta del 30 % o más | Etiqueta "¡Mejor precio!" |
 | Campo inválido | Borde rojo y mensaje bajo el campo |
@@ -264,7 +277,8 @@ Sin él, el formulario de contacto y el de producto repetirían las mismas cuare
         ├── FormularioProducto.jsx Agregar un videojuego al catálogo
         ├── FormularioContacto.jsx Formulario de contacto
         ├── CampoFormulario.jsx   Etiqueta + campo + error, para ambos formularios
-        └── PieDePagina.jsx       Datos de contacto y redes
+        ├── AvisoAdministracion.jsx Aviso del modo administración, con su salida
+        └── PieDePagina.jsx       Datos de contacto, redes y acceso al modo administración
 ```
 
 ---
@@ -301,8 +315,9 @@ sitio publicado y con un perfil de navegador limpio:
 
 | Bloque | Pruebas | Qué cubren |
 |---|--:|---|
-| Formulario de contacto | 19 | Errores al enviar vacío, email mal formado, error que se borra al corregir, envío correcto, Grid en una y dos columnas |
-| Catálogo editable | 31 | Validaciones, agregar con categoría nueva, portada, quitar (carrito y filtro coherentes), catálogo vacío, recarga |
+| Formulario de contacto y navegación | 24 | Errores al enviar vacío, email mal formado, error que se borra al corregir, envío correcto, Grid en una y dos columnas, barra fija y anclas |
+| Modo administración y catálogo | 47 | Vista pública sin herramientas, entrar y salir del modo, validaciones, agregar con categoría nueva, portada, quitar del carrito desde la tarjeta, retirar con confirmación (y cancelarla), carrito y filtro coherentes, catálogo vacío, recarga |
+| Anclas de la barra | 12 | En 1280 y 390 px: la barra queda fija y cada enlace deja el título de su sección visible bajo ella |
 
 Todas comprueban además que **la consola queda sin errores** y que en 375 px de ancho
 **no hay scroll horizontal**.
