@@ -9,7 +9,8 @@
      - cargando: true mientras el fetch está en vuelo.
      - error: mensaje si la carga falló, null si todo fue bien.
      - idsEnCarrito: qué productos ya están en el carrito.
-     - alAgregar, alQuitar: funciones que se pasan tal cual a cada tarjeta.
+     - alAgregar, alQuitarDelCarrito, alRetirar: funciones que se pasan
+       tal cual a cada tarjeta.
 
    Devuelve: la sección del catálogo.
 
@@ -39,7 +40,8 @@ function ListaProductos({
     error,
     idsEnCarrito,
     alAgregar,
-    alQuitar,
+    alQuitarDelCarrito,
+    alRetirar,
 }) {
     const hayCategoria = categoria !== TODAS_LAS_CATEGORIAS;
 
@@ -133,7 +135,8 @@ function ListaProductos({
                         producto={producto}
                         yaEsta={idsEnCarrito.includes(producto.id)}
                         alAgregar={alAgregar}
-                        alQuitar={alQuitar}
+                        alQuitarDelCarrito={alQuitarDelCarrito}
+                        alRetirar={alRetirar}
                     />
                 ))}
             </div>

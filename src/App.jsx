@@ -221,7 +221,8 @@ function App() {
                             error={error}
                             idsEnCarrito={idsEnCarrito}
                             alAgregar={agregarAlCarrito}
-                            alQuitar={quitarDelCatalogo}
+                            alQuitarDelCarrito={eliminarDelCarrito}
+                            alRetirar={quitarDelCatalogo}
                         />
 
                         {/* Agregar juegos solo tiene sentido cuando el

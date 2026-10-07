@@ -6,7 +6,8 @@
      - producto: el objeto con nombre, precio, oferta, descripción e imagen.
      - yaEsta: true si el producto ya está en el carrito.
      - alAgregar: función que App entrega para sumar el producto al carrito.
-     - alQuitar: función que App entrega para quitarlo del catálogo.
+     - alQuitarDelCarrito: función para sacarlo del carrito.
+     - alRetirar: función para retirarlo del catálogo.
 
    Devuelve: la tarjeta completa de ese producto.
 
@@ -26,7 +27,23 @@ import {
     rutaImagen,
 } from "../utils/formato";
 
-function TarjetaProducto({ producto, yaEsta, alAgregar, alQuitar }) {
+function TarjetaProducto({
+    producto,
+    yaEsta,
+    alAgregar,
+    alQuitarDelCarrito,
+    alRetirar,
+}) {
+    /* Retirar del catálogo pide confirmación: borra el juego de la
+       tienda, y sin ella un clic equivocado obligaría a recargar la
+       página para recuperarlo. Quitar del carrito no la pide porque se
+       deshace con un clic en "Agregar al carrito". */
+    function confirmarRetiro() {
+        if (window.confirm(`¿Retirar «${producto.nombre}» del catálogo?`)) {
+            alRetirar(producto.id);
+        }
+    }
+
     /* Se calculan una sola vez y se usan abajo, para no repetir la
        operación dentro del JSX */
     const ahorro = calcularAhorro(producto.precio, producto.oferta);
@@ -106,20 +123,39 @@ function TarjetaProducto({ producto, yaEsta, alAgregar, alQuitar }) {
                         {yaEsta ? "En el carrito ✓" : "Agregar al carrito"}
                     </button>
 
-                    {/* Quitar del CATÁLOGO, no del carrito: para eso están
-                        los botones del carrito. Va discreto, como enlace,
-                        para que no compita con la acción principal de la
-                        tarjeta. El aria-label dice qué juego se quita,
-                        porque "Quitar del catálogo" repetido nueve veces no
-                        le sirve a quien usa un lector de pantalla. */}
-                    <button
-                        type="button"
-                        className="btn btn-link btn-sm text-body-secondary mt-2"
-                        onClick={() => alQuitar(producto.id)}
-                        aria-label={`Quitar ${producto.nombre} del catálogo`}
-                    >
-                        Quitar del catálogo
-                    </button>
+                    {/* RENDERIZADO CONDICIONAL: solo si ya está en el
+                        carrito tiene sentido ofrecer sacarlo de ahí. Va
+                        pegado al botón de agregar porque es su contrario. */}
+                    {yaEsta && (
+                        <button
+                            type="button"
+                            className="btn btn-link btn-sm text-body-secondary mt-1"
+                            onClick={() => alQuitarDelCarrito(producto.id)}
+                            aria-label={`Quitar ${producto.nombre} del carrito`}
+                        >
+                            Quitar del carrito
+                        </button>
+                    )}
+
+                    {/* Retirar del CATÁLOGO es otra cosa: no toca la compra,
+                        cambia la tienda. Por eso va separado por una línea,
+                        en rojo y con otro verbo. Cuando estaba como enlace
+                        justo bajo "En el carrito ✓" se leía como una acción
+                        del carrito, y al pulsarlo el juego desaparecía de la
+                        tienda sin que nadie lo esperara.
+                        El aria-label nombra el juego: "Retirar del catálogo"
+                        repetido en cada tarjeta no le sirve a un lector de
+                        pantalla. */}
+                    <div className="border-top mt-3 pt-3 text-end">
+                        <button
+                            type="button"
+                            className="btn btn-outline-danger btn-sm"
+                            onClick={confirmarRetiro}
+                            aria-label={`Retirar ${producto.nombre} del catálogo`}
+                        >
+                            Retirar del catálogo
+                        </button>
+                    </div>
                 </div>
             </div>
         </article>
