@@ -249,7 +249,7 @@ Sin él, el formulario de contacto y el de producto repetirían las mismas cuare
 ├── index.html                    Plantilla base: solo el <div id="root"> donde monta React
 ├── vite.config.js                Configuración de Vite, con la ruta base de Pages
 ├── package.json                  Dependencias y comandos
-├── capturas/                     Evidencias de funcionamiento
+├── capturas/                     Evidencias de la EFT (en semana-8/, las de la entrega anterior)
 ├── public/                       Se copia tal cual al build
 │   ├── data/productos.json       Los datos del catálogo
 │   ├── img/                      Portadas SVG, portada genérica y logotipo
@@ -319,7 +319,7 @@ sitio publicado y con un perfil de navegador limpio:
 | Modo administración y catálogo | 47 | Vista pública sin herramientas, entrar y salir del modo, validaciones, agregar con categoría nueva, portada, quitar del carrito desde la tarjeta, retirar con confirmación (y cancelarla), carrito y filtro coherentes, catálogo vacío, recarga |
 | Anclas de la barra | 12 | En 1280 y 390 px: la barra queda fija y cada enlace deja el título de su sección visible bajo ella |
 
-Todas comprueban además que **la consola queda sin errores** y que en 375 px de ancho
+Las dos primeras comprueban además que **la consola queda sin errores** y que en 375 px de ancho
 **no hay scroll horizontal**.
 
 ### Navegadores y dispositivos
