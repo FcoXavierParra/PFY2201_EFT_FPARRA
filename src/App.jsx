@@ -106,9 +106,12 @@ function App() {
     /* Total de unidades, para el contador del encabezado */
     const unidades = carrito.reduce((suma, linea) => suma + linea.cantidad, 0);
 
-    /* Los ids que ya están en el carrito. TarjetaProducto lo usa para
-       decidir si su botón dice "Agregar al carrito" o "En el carrito". */
-    const idsEnCarrito = carrito.map((linea) => linea.id);
+    /* Cuántas unidades de cada producto hay en el carrito, por id:
+       { 1: 2, 4: 1 }. TarjetaProducto lo usa para mostrar el estado
+       "En el carrito · 2 unidades" y para decidir el texto de su botón. */
+    const cantidadesEnCarrito = Object.fromEntries(
+        carrito.map((linea) => [linea.id, linea.cantidad])
+    );
 
     /* ---------- Acciones sobre el carrito ---------- */
 
@@ -231,7 +234,7 @@ function App() {
                             categoria={categoria}
                             cargando={cargando}
                             error={error}
-                            idsEnCarrito={idsEnCarrito}
+                            cantidadesEnCarrito={cantidadesEnCarrito}
                             alAgregar={agregarAlCarrito}
                             alQuitarDelCarrito={eliminarDelCarrito}
                             /* Fuera del modo administración la tarjeta no
@@ -257,6 +260,7 @@ function App() {
                     <aside className="col-lg-4">
                         <Carrito
                             lineas={lineasCarrito}
+                            alSumar={agregarAlCarrito}
                             alQuitar={quitarUnaUnidad}
                             alEliminar={eliminarDelCarrito}
                             alVaciar={vaciarCarrito}

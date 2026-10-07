@@ -4,19 +4,20 @@
 
    Recibe (props):
      - linea: { producto, cantidad } ya resuelto por el carrito.
+     - alSumar: suma UNA unidad.
      - alQuitar: quita UNA unidad.
      - alEliminar: elimina la línea completa.
 
    Devuelve: un elemento de la lista del carrito.
 
    Igual que TarjetaProducto, se instancia tantas veces como líneas
-   tenga el carrito. Los dos eventos onClick que expone cubren la
-   parte de eliminar que pide el criterio 1.
+   tenga el carrito. Sus tres eventos onClick permiten cambiar la
+   cantidad en los dos sentidos y eliminar la línea desde el carrito.
    ============================================================ */
 
 import { formatearPrecio, rutaImagen } from "../utils/formato";
 
-function LineaCarrito({ linea, alQuitar, alEliminar }) {
+function LineaCarrito({ linea, alSumar, alQuitar, alEliminar }) {
     const { producto, cantidad } = linea;
 
     /* El subtotal se calcula sobre el precio de OFERTA, que es el que
@@ -55,6 +56,18 @@ function LineaCarrito({ linea, alQuitar, alEliminar }) {
                     aria-label={`Quitar una unidad de ${producto.nombre}`}
                 >
                     −
+                </button>
+
+                {/* Suma una unidad. Estaba en la Semana 6 y se perdió al
+                    pasar a React en la Semana 7 sin que nadie lo decidiera:
+                    el carrito quedó con "−" pero sin su "+". */}
+                <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => alSumar(producto.id)}
+                    aria-label={`Agregar una unidad de ${producto.nombre}`}
+                >
+                    +
                 </button>
 
                 {/* Elimina la línea completa, sea cual sea la cantidad */}

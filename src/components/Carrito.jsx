@@ -4,7 +4,7 @@
 
    Recibe (props):
      - lineas: [{ producto, cantidad }], el carrito ya resuelto.
-     - alQuitar, alEliminar, alVaciar: las tres acciones sobre el carrito.
+     - alSumar, alQuitar, alEliminar, alVaciar: las acciones sobre el carrito.
 
    Devuelve: la sección completa del carrito.
 
@@ -16,7 +16,7 @@
 import LineaCarrito from "./LineaCarrito";
 import TotalCarrito from "./TotalCarrito";
 
-function Carrito({ lineas, alQuitar, alEliminar, alVaciar }) {
+function Carrito({ lineas, alSumar, alQuitar, alEliminar, alVaciar }) {
     /* RENDERIZADO CONDICIONAL (criterio 3).
        Con el carrito vacío no tiene sentido mostrar una lista vacía ni
        un total de cero: se sustituye por un mensaje que dice qué hacer. */
@@ -40,6 +40,7 @@ function Carrito({ lineas, alQuitar, alEliminar, alVaciar }) {
                                     <LineaCarrito
                                         key={linea.producto.id}
                                         linea={linea}
+                                        alSumar={alSumar}
                                         alQuitar={alQuitar}
                                         alEliminar={alEliminar}
                                     />

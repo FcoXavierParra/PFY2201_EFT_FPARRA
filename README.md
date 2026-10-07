@@ -101,12 +101,12 @@ teléfono se despliega con el botón ☰ y se cierra sola al elegir una sección
 
 ### Comprar
 
-1. En una tarjeta, pulsa **Agregar al carrito**. El botón pasa a decir **En el carrito ✓**
-   y el contador de la barra suma uno.
-2. Pulsarlo otra vez suma otra unidad. Bajo él aparece **Quitar del carrito**, que lo saca
-   del carrito sin tocar el catálogo.
-3. En el carrito, **−** quita una unidad, **Eliminar** quita la línea y **Vaciar carrito**
-   lo deja vacío. El total y el ahorro se recalculan solos.
+1. En una tarjeta, pulsa **Agregar al carrito**. La tarjeta muestra
+   **✓ En el carrito · 1 unidad** y el contador de la barra suma uno.
+2. El botón pasa a decir **Agregar otra unidad**, que suma una más. Bajo él aparece
+   **Quitar del carrito**, que lo saca del carrito sin tocar el catálogo.
+3. En el carrito, **+** y **−** cambian la cantidad, **Eliminar** quita la línea y
+   **Vaciar carrito** lo deja vacío. El total y el ahorro se recalculan solos.
 
 En pantallas anchas el carrito queda fijo a la derecha del catálogo; en el teléfono va
 debajo, y se llega a él con el botón del carrito de la barra.
@@ -234,7 +234,7 @@ Sin él, el formulario de contacto y el de producto repetirían las mismas cuare
 | Error de carga | Mensaje amigable; el resto del sitio sigue en pie |
 | Filtros sin coincidencias | Aviso que dice por cuál filtro se quedó vacío |
 | Catálogo vacío | Aviso que explica cómo recuperarlo |
-| Producto en el carrito | Su botón dice "En el carrito ✓", cambia de estilo y aparece "Quitar del carrito" |
+| Producto en el carrito | La tarjeta muestra "✓ En el carrito · N unidades"; su botón pasa a "Agregar otra unidad" y aparece "Quitar del carrito" |
 | Modo administración | Aviso arriba, formulario de agregar y botón "Retirar" en cada tarjeta; el pie cambia a "Salir" |
 | Carrito vacío | "Tu carrito está vacío…" |
 | Oferta del 30 % o más | Etiqueta "¡Mejor precio!" |
@@ -316,7 +316,7 @@ sitio publicado y con un perfil de navegador limpio:
 | Bloque | Pruebas | Qué cubren |
 |---|--:|---|
 | Formulario de contacto y navegación | 24 | Errores al enviar vacío, email mal formado, error que se borra al corregir, envío correcto, Grid en una y dos columnas, barra fija y anclas |
-| Modo administración y catálogo | 47 | Vista pública sin herramientas, entrar y salir del modo, validaciones, agregar con categoría nueva, portada, quitar del carrito desde la tarjeta, retirar con confirmación (y cancelarla), carrito y filtro coherentes, catálogo vacío, recarga |
+| Modo administración, catálogo y carrito | 56 | Vista pública sin herramientas, entrar y salir del modo, validaciones, agregar con categoría nueva, portada, estado y cantidad en la tarjeta, + y − en el carrito, quitar del carrito desde la tarjeta, retirar con confirmación (y cancelarla), carrito y filtro coherentes, catálogo vacío, recarga |
 | Anclas de la barra | 12 | En 1280 y 390 px: la barra queda fija y cada enlace deja el título de su sección visible bajo ella |
 
 Las dos primeras comprueban además que **la consola queda sin errores** y que en 375 px de ancho

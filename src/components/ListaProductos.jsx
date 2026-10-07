@@ -8,7 +8,7 @@
      - categoria: la categoría activa, para el mismo aviso.
      - cargando: true mientras el fetch está en vuelo.
      - error: mensaje si la carga falló, null si todo fue bien.
-     - idsEnCarrito: qué productos ya están en el carrito.
+     - cantidadesEnCarrito: unidades de cada producto en el carrito, por id.
      - alAgregar, alQuitarDelCarrito, alRetirar: funciones que se pasan
        tal cual a cada tarjeta.
 
@@ -38,7 +38,7 @@ function ListaProductos({
     categoria,
     cargando,
     error,
-    idsEnCarrito,
+    cantidadesEnCarrito,
     alAgregar,
     alQuitarDelCarrito,
     alRetirar,
@@ -133,7 +133,7 @@ function ListaProductos({
                     <TarjetaProducto
                         key={producto.id}
                         producto={producto}
-                        yaEsta={idsEnCarrito.includes(producto.id)}
+                        enCarrito={cantidadesEnCarrito[producto.id] ?? 0}
                         alAgregar={alAgregar}
                         alQuitarDelCarrito={alQuitarDelCarrito}
                         alRetirar={alRetirar}

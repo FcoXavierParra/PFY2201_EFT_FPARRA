@@ -4,7 +4,8 @@
 
    Recibe (props):
      - producto: el objeto con nombre, precio, oferta, descripción e imagen.
-     - yaEsta: true si el producto ya está en el carrito.
+     - enCarrito: cuántas unidades de este producto hay en el carrito
+       (0 si no está).
      - alAgregar: función que App entrega para sumar el producto al carrito.
      - alQuitarDelCarrito: función para sacarlo del carrito.
      - alRetirar: función para retirarlo del catálogo. Solo llega en
@@ -30,7 +31,7 @@ import {
 
 function TarjetaProducto({
     producto,
-    yaEsta,
+    enCarrito,
     alAgregar,
     alQuitarDelCarrito,
     alRetirar,
@@ -49,6 +50,7 @@ function TarjetaProducto({
        operación dentro del JSX */
     const ahorro = calcularAhorro(producto.precio, producto.oferta);
     const destacada = esOfertaDestacada(producto.precio, producto.oferta);
+    const yaEsta = enCarrito > 0;
 
     /* El catálogo vive en una columna de 8/12, así que las tarjetas pasan a
        tres por fila solo en pantallas muy anchas */
@@ -104,15 +106,26 @@ function TarjetaProducto({
                         </p>
                     )}
 
+                    {/* RENDERIZADO CONDICIONAL: el ESTADO va en una línea
+                        aparte y el botón dice solo la ACCIÓN.
+
+                        Hasta la EFT el botón decía "En el carrito ✓" y, al
+                        pulsarlo otra vez, sumaba una unidad: mostraba un
+                        estado pero ejecutaba una acción, y eso no se adivina.
+                        Ahora el estado se lee arriba, con la cantidad, y el
+                        botón dice exactamente lo que hace. role="status"
+                        hace que el lector de pantalla anuncie el cambio. */}
+                    {yaEsta && (
+                        <p className="small text-primary fw-bold mb-2" role="status">
+                            ✓ En el carrito · {enCarrito}{" "}
+                            {enCarrito === 1 ? "unidad" : "unidades"}
+                        </p>
+                    )}
+
                     {/* RENDERIZADO CONDICIONAL + evento onClick.
                         El botón cambia de texto y de estilo cuando el producto
-                        ya está en el carrito.
-
-                        NO se deshabilita a propósito: seguir pulsando suma
-                        otra unidad, que es lo que hace cualquier tienda y lo
-                        que la gente espera. Lo único que cambia es lo que se
-                        lee, para que de un vistazo se sepa qué hay dentro del
-                        carrito sin tener que mirarlo. */}
+                        ya está en el carrito, y en los dos casos suma una
+                        unidad, que es lo que dice. */}
                     <button
                         type="button"
                         className={
@@ -121,7 +134,7 @@ function TarjetaProducto({
                         }
                         onClick={() => alAgregar(producto.id)}
                     >
-                        {yaEsta ? "En el carrito ✓" : "Agregar al carrito"}
+                        {yaEsta ? "Agregar otra unidad" : "Agregar al carrito"}
                     </button>
 
                     {/* RENDERIZADO CONDICIONAL: solo si ya está en el
