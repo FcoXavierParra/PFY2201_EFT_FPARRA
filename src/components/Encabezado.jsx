@@ -37,9 +37,14 @@ function Encabezado({ unidades, children }) {
     }
 
     return (
-        <header>
+        /* sticky-top va en el <header> y no en el <nav>. Un elemento
+           sticky solo se queda fijo dentro de su contenedor, y el header
+           mide lo mismo que la barra: puesta en el nav, no tenía recorrido
+           y se iba con el scroll. Fallo heredado de la Semana 7 que
+           destapó la ronda de capturas de la EFT. */
+        <header className="sticky-top">
             <nav
-                className="navbar navbar-expand-lg sticky-top border-bottom border-3 border-primary"
+                className="navbar navbar-expand-lg border-bottom border-3 border-primary"
                 aria-label="Menú principal"
             >
                 <div className="container">

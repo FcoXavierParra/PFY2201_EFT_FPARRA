@@ -187,9 +187,14 @@ h2 {
 /* Hueco para la barra fija al saltar a una seccion desde un enlace del
    encabezado. Sin esto el titulo de la seccion queda escondido debajo
    de la barra. clamp() ajusta el hueco al alto real de la barra, que
-   crece un poco en pantallas grandes. */
+   crece un poco en pantallas grandes.
+
+   El minimo es 4.75rem (76 px) porque la barra mide 69 px con su
+   borde. Hasta la EFT era 4rem (64 px) y en el telefono el titulo
+   quedaba 5 px debajo de la barra; no se notaba porque la barra
+   tampoco se quedaba fija (ver Encabezado.jsx). */
 main section[id] {
-    scroll-margin-top: clamp(4rem, 8vw, 5.5rem);
+    scroll-margin-top: clamp(4.75rem, 8vw, 5.5rem);
 }
 
 
