@@ -101,3 +101,43 @@ export function validarProducto(datos, catalogo) {
 
     return errores;
 }
+
+/* Celular chileno: 9 seguido de 8 dígitos, con o sin +56 delante.
+   Se valida después de quitar espacios y guiones, para aceptar las
+   formas habituales de escribirlo: "+56 9 1234 5678", "912345678". */
+const FORMATO_CELULAR = /^(\+?56)?9\d{8}$/;
+
+/**
+ * Valida los datos de despacho y contacto del pago.
+ * @param {{ nombre: string, email: string, celular: string,
+ *   direccion: string, comuna: string }} datos
+ * @returns {Object<string, string>} Un mensaje por cada campo inválido.
+ */
+export function validarCompra({ nombre, email, celular, direccion, comuna }) {
+    /* El nombre y el correo siguen las mismas reglas que el formulario
+       de contacto: se reutiliza esa validación en lugar de repetirla */
+    const { nombre: errorNombre, email: errorEmail } = validarContacto({
+        nombre,
+        email,
+        mensaje: "no aplica aquí",
+    });
+    const errores = {};
+    if (errorNombre) errores.nombre = errorNombre;
+    if (errorEmail) errores.email = errorEmail;
+
+    if (celular.trim() === "") {
+        errores.celular = "Escribe tu celular, para avisarte del despacho.";
+    } else if (!FORMATO_CELULAR.test(celular.replace(/[\s-]/g, ""))) {
+        errores.celular = "El celular debe tener 9 dígitos y empezar por 9, por ejemplo +56 9 1234 5678.";
+    }
+
+    if (direccion.trim().length < 5) {
+        errores.direccion = "Escribe la dirección de despacho: calle y número.";
+    }
+
+    if (comuna.trim() === "") {
+        errores.comuna = "Escribe la comuna.";
+    }
+
+    return errores;
+}

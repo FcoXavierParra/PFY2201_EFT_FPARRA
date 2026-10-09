@@ -72,6 +72,11 @@ function App() {
        Sin contraseña a propósito: ver AvisoAdministracion.jsx. */
     const [modoAdmin, setModoAdmin] = useState(false);
 
+    /* La última compra confirmada (simulada), o null. Vive aquí y no en
+       el Carrito porque confirmarla también vacía el carrito, que es
+       estado de App. */
+    const [compra, setCompra] = useState(null);
+
     /* ---------- Valores derivados ----------
        Estos NO son estado: se recalculan en cada renderizado a partir
        del estado. Guardarlos en su propio useState es el error clásico,
@@ -121,6 +126,10 @@ function App() {
      * @param {number} id - Identificador del producto.
      */
     function agregarAlCarrito(id) {
+        /* Empezar otra compra cierra el comprobante de la anterior: si
+           no, el comprobante seguiría tapando el carrito nuevo */
+        setCompra(null);
+
         setCarrito((actual) => {
             const existente = actual.find((linea) => linea.id === id);
 
@@ -162,6 +171,25 @@ function App() {
     /** Deja el carrito vacío. */
     function vaciarCarrito() {
         setCarrito([]);
+    }
+
+    /**
+     * Confirma la compra (simulada): guarda el comprobante y vacía el
+     * carrito. Las líneas se COPIAN en el comprobante, porque el carrito
+     * se vacía en la misma acción y el comprobante tiene que seguir
+     * mostrando lo que se compró.
+     * @param {Object} cliente - Datos de despacho ya validados.
+     */
+    function confirmarCompra(cliente) {
+        setCompra({
+            /* Date.now() va aquí, en un manejador de evento, y no en el
+               renderizado: el renderizado tiene que ser una función pura */
+            numero: "NP-" + String(Date.now()).slice(-6),
+            fecha: new Date().toLocaleString("es-CL"),
+            cliente,
+            lineas: lineasCarrito,
+        });
+        vaciarCarrito();
     }
 
     /* ---------- Acciones sobre el catálogo ---------- */
@@ -264,6 +292,9 @@ function App() {
                             alQuitar={quitarUnaUnidad}
                             alEliminar={eliminarDelCarrito}
                             alVaciar={vaciarCarrito}
+                            compra={compra}
+                            alComprar={confirmarCompra}
+                            alCerrarCompra={() => setCompra(null)}
                         />
                     </aside>
                 </div>

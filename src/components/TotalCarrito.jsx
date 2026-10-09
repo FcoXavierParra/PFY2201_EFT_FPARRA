@@ -4,6 +4,8 @@
 
    Recibe (props):
      - lineas: el carrito resuelto, [{ producto, cantidad }].
+     - etiquetaTotal: el rótulo del total. "Total a pagar" en el carrito;
+       el comprobante lo cambia a "Total pagado".
 
    Devuelve: el bloque de totales.
 
@@ -15,7 +17,7 @@
 
 import { formatearPrecio } from "../utils/formato";
 
-function TotalCarrito({ lineas }) {
+function TotalCarrito({ lineas, etiquetaTotal = "Total a pagar" }) {
     /* Unidades: suma de cantidades, no número de líneas. Dos copias de
        un mismo juego son dos productos en el carrito, no uno. */
     const unidades = lineas.reduce((suma, linea) => suma + linea.cantidad, 0);
@@ -54,7 +56,7 @@ function TotalCarrito({ lineas }) {
             </p>
 
             <p className="d-flex justify-content-between mb-0 fs-5">
-                <span className="fw-bold">Total a pagar</span>
+                <span className="fw-bold">{etiquetaTotal}</span>
                 <span className="fw-bold text-primary">
                     {formatearPrecio(total)}
                 </span>

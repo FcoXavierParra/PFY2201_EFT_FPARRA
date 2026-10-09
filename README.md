@@ -94,7 +94,7 @@ teléfono se despliega con el botón ☰ y se cierra sola al elegir una sección
 | **Categorías** | Pulsar una categoría muestra solo sus juegos. "Todas" vuelve al catálogo completo |
 | **Buscador** (en la barra) | Filtra por nombre **mientras se escribe**. Se combina con la categoría elegida |
 | **Catálogo** | Cada tarjeta muestra imagen, nombre, categoría, descripción, precio normal y de oferta |
-| **Carrito** | Ver los productos agregados, cambiar cantidades, eliminar una línea o vaciarlo |
+| **Carrito** | Ver los productos agregados, cambiar cantidades, eliminar una línea o vaciarlo, y **pagar** (simulado) |
 | **Agregar un videojuego** | Sumar un juego nuevo al catálogo. *Solo en modo administración* |
 | **Pie de página** | Datos de la tienda, redes y el acceso al **modo administración** |
 | **Contacto** | Escribirle al administrador del sitio |
@@ -107,6 +107,15 @@ teléfono se despliega con el botón ☰ y se cierra sola al elegir una sección
    **Quitar del carrito**, que lo saca del carrito sin tocar el catálogo.
 3. En el carrito, **+** y **−** cambian la cantidad, **Eliminar** quita la línea y
    **Vaciar carrito** lo deja vacío. El total y el ahorro se recalculan solos.
+4. Pulsa **Ir a pagar**. El carrito muestra el resumen y pide los datos de despacho:
+   nombre, correo (para la boleta), celular (para el aviso de despacho), dirección y
+   comuna. **Volver al carrito** regresa a la lista sin perder nada.
+5. Pulsa **Confirmar compra**. Aparece el **comprobante**: número de orden, fecha,
+   dirección, detalle, total pagado y a dónde se enviaron la boleta y el aviso. El
+   carrito queda vacío. **Seguir comprando** cierra el comprobante.
+
+El pago es una **simulación**: no se cobra nada, no se envía ningún correo ni mensaje y
+no se piden datos de tarjeta.
 
 En pantallas anchas el carrito queda fijo a la derecha del catálogo; en el teléfono va
 debajo, y se llega a él con el botón del carrito de la barra.
@@ -152,6 +161,10 @@ rojo con su mensaje debajo, y el mensaje desaparece en cuanto se corrige.
 | | Precio normal y de oferta | Números enteros mayores que cero, sin puntos |
 | | Precio de oferta | No mayor que el precio normal |
 | | Descripción | Al menos 10 caracteres |
+| Pago | Nombre y correo | Las mismas reglas que en Contacto |
+| | Celular | 9 dígitos empezando por 9, con o sin +56; acepta espacios y guiones |
+| | Dirección | Al menos 5 caracteres |
+| | Comuna | Obligatoria |
 
 ---
 
@@ -167,7 +180,7 @@ rojo con su mensaje debajo, y el mensaje desaparece en cuanto se corrige.
 | Tarjetas generadas dinámicamente | `ListaProductos` recorre el arreglo con `.map()` y crea un `TarjetaProducto` por juego |
 | Filtro por categoría | `FiltroCategorias`; las categorías se calculan desde los datos |
 | Validación del formulario de contacto | `utils/validacion.js` + `FormularioContacto` |
-| Componentes React | 14 componentes y 2 hooks propios en `src/components/` y `src/hooks/`, ver [Estructura](#estructura) |
+| Componentes React | 16 componentes y 2 hooks propios en `src/components/` y `src/hooks/`, ver [Estructura](#estructura) |
 | State para agregar o eliminar videojuegos | `useProductos` expone `agregarProducto` y `quitarProducto`; se usan desde el modo administración (estado `modoAdmin` en `App`) |
 | Carga dinámica desde un archivo | `useEffect` + `fetch` en `useProductos` |
 | Props que conectan componentes | El filtro, el buscador y el carrito cambian el estado de `App`, que baja a `ListaProductos` por props |
@@ -184,9 +197,10 @@ de estados describe un mismo trabajo, se saca a un hook.
 | Dónde | Estado | Por qué ahí |
 |---|---|---|
 | `hooks/useProductos.js` | `productos`, `cargando`, `error` | Describen un solo trabajo: conseguir el catálogo |
-| `App.jsx` | `carrito`, `busqueda`, `categoria`, `modoAdmin` | Los leen varias ramas del árbol: barra, catálogo, carrito, formulario y pie |
+| `App.jsx` | `carrito`, `busqueda`, `categoria`, `modoAdmin`, `compra` | Los leen varias ramas del árbol: barra, catálogo, carrito, formulario y pie. `compra` vive aquí porque confirmarla vacía el carrito |
 | `hooks/useFormulario.js` | `datos`, `errores`, `enviado` | Uno por formulario: a nadie más le importa lo que se está escribiendo |
 | `Encabezado.jsx` | `menuAbierto` | Solo le importa a la barra |
+| `Carrito.jsx` | `pagando` | Si se ve la lista o el formulario de pago no le importa a nadie fuera del carrito |
 
 **Lo que NO es estado.** El listado filtrado, las categorías, las líneas del carrito, el
 contador y los totales se **derivan** del estado en cada renderizado. Guardarlos en su
@@ -237,6 +251,8 @@ Sin él, el formulario de contacto y el de producto repetirían las mismas cuare
 | Producto en el carrito | La tarjeta muestra "✓ En el carrito · N unidades"; su botón pasa a "Agregar otra unidad" y aparece "Quitar del carrito" |
 | Modo administración | Aviso arriba, formulario de agregar y botón "Retirar" en cada tarjeta; el pie cambia a "Salir" |
 | Carrito vacío | "Tu carrito está vacío…" |
+| Pagando | El carrito cambia la lista por el resumen y el formulario de despacho |
+| Compra confirmada | El comprobante reemplaza al carrito hasta "Seguir comprando" |
 | Oferta del 30 % o más | Etiqueta "¡Mejor precio!" |
 | Campo inválido | Borde rojo y mensaje bajo el campo |
 | Envío correcto | Aviso de éxito |
@@ -273,7 +289,9 @@ Sin él, el formulario de contacto y el de producto repetirían las mismas cuare
         ├── TarjetaProducto.jsx   Ficha de un videojuego
         ├── Carrito.jsx           Sección del carrito
         ├── LineaCarrito.jsx      Una línea del carrito
-        ├── TotalCarrito.jsx      Unidades, ahorro y total
+        ├── TotalCarrito.jsx      Unidades, ahorro y total (también en el comprobante)
+        ├── FormularioPago.jsx    Datos de despacho para pagar (simulado)
+        ├── Comprobante.jsx       Comprobante de la compra confirmada
         ├── FormularioProducto.jsx Agregar un videojuego al catálogo
         ├── FormularioContacto.jsx Formulario de contacto
         ├── CampoFormulario.jsx   Etiqueta + campo + error, para ambos formularios
@@ -317,6 +335,7 @@ sitio publicado y con un perfil de navegador limpio:
 |---|--:|---|
 | Formulario de contacto y navegación | 24 | Errores al enviar vacío, email mal formado, error que se borra al corregir, envío correcto, Grid en una y dos columnas, barra fija y anclas |
 | Modo administración, catálogo y carrito | 56 | Vista pública sin herramientas, entrar y salir del modo, validaciones, agregar con categoría nueva, portada, estado y cantidad en la tarjeta, + y − en el carrito, quitar del carrito desde la tarjeta, retirar con confirmación (y cancelarla), carrito y filtro coherentes, catálogo vacío, recarga |
+| Pago y comprobante | 28 | Ir a pagar, volver sin perder productos, sin datos de tarjeta, validación de los 5 campos (celular con +56 y espacios), comprobante con orden, fecha, despacho, detalle y total, carrito vaciado, segunda compra, agregar con el comprobante abierto |
 | Anclas de la barra | 12 | En 1280 y 390 px: la barra queda fija y cada enlace deja el título de su sección visible bajo ella |
 
 Las dos primeras comprueban además que **la consola queda sin errores** y que en 375 px de ancho
@@ -347,6 +366,11 @@ su cuenta y chocaría con React.
 
 **Sin servidor para el formulario de contacto.** Conectarlo a un servicio de correo
 añadiría otra dependencia externa. El envío se valida y se confirma en pantalla.
+
+**Pago simulado y sin datos de tarjeta.** El enunciado no pide un pago; se agregó para
+cerrar el ciclo de compra, que de otro modo terminaba en "Vaciar carrito". No pide
+datos de tarjeta a propósito: un formulario que los pide sin necesitarlos enseña un mal
+hábito, y el flujo se entiende igual.
 
 ---
 
