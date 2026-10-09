@@ -148,7 +148,7 @@ servidor, así que un envío correcto se confirma en pantalla y el formulario se
 
 ### Mensajes de validación
 
-Los dos formularios se validan **al enviar**. Cada campo con un problema se marca en
+Los tres formularios se validan **al enviar**. Cada campo con un problema se marca en
 rojo con su mensaje debajo, y el mensaje desaparece en cuanto se corrige.
 
 | Formulario | Campo | Regla |
@@ -231,7 +231,7 @@ Dentro, un `useEffect` con `[]` pide el JSON una sola vez al montar. Comprueba
 `response.ok` antes del `.json()`, porque un 404 no hace fallar a `fetch`, y usa una
 guarda de cancelación para que no actualice un componente desmontado.
 
-**`useFormulario`** guarda lo que reúnen los dos formularios: los campos, los errores, la
+**`useFormulario`** guarda lo que reúnen los tres formularios (contacto, producto y pago): los campos, los errores, la
 validación al enviar y la limpieza. Cada formulario solo declara sus campos y sus reglas:
 
 ```js
@@ -279,7 +279,7 @@ Sin él, el formulario de contacto y el de producto repetirían las mismas cuare
     │   └── useFormulario.js      Estado y validación comunes a los formularios
     ├── utils/
     │   ├── formato.js            Rutas, formato de precios y filtros
-    │   └── validacion.js         Reglas de los dos formularios
+    │   └── validacion.js         Reglas de los tres formularios
     └── components/
         ├── Encabezado.jsx        Barra de navegación, buscador y contador
         ├── Buscador.jsx          Campo de búsqueda
@@ -294,7 +294,7 @@ Sin él, el formulario de contacto y el de producto repetirían las mismas cuare
         ├── Comprobante.jsx       Comprobante de la compra confirmada
         ├── FormularioProducto.jsx Agregar un videojuego al catálogo
         ├── FormularioContacto.jsx Formulario de contacto
-        ├── CampoFormulario.jsx   Etiqueta + campo + error, para ambos formularios
+        ├── CampoFormulario.jsx   Etiqueta + campo + error, para los tres formularios
         ├── AvisoAdministracion.jsx Aviso del modo administración, con su salida
         └── PieDePagina.jsx       Datos de contacto, redes y acceso al modo administración
 ```

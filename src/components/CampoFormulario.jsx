@@ -11,7 +11,7 @@
 
    Devuelve: el bloque etiqueta + control + error.
 
-   Lo usan los dos formularios del sitio. Sin él, cada campo repetiría
+   Lo usan los tres formularios del sitio. Sin él, cada campo repetiría
    las mismas doce líneas de etiqueta, control y error; con él, un campo
    es una línea que dice solo lo que lo hace distinto.
    ============================================================ */

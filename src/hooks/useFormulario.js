@@ -7,11 +7,11 @@
    escrito en cada campo, validar al enviar, mostrar los errores por
    campo y limpiar tras un envío correcto.
 
-   ¿Por qué un hook? El sitio tiene dos formularios —el de contacto y
-   el de agregar un videojuego— que se comportan exactamente igual y
-   solo se diferencian en sus campos y en sus reglas. Sin el hook, esas
-   cuarenta líneas estarían copiadas en los dos componentes, y un
-   arreglo en una copia se olvidaría en la otra. Con él, cada
+   ¿Por qué un hook? El sitio tiene tres formularios —contacto, agregar
+   un videojuego y pago— que se comportan exactamente igual y solo se
+   diferencian en sus campos y en sus reglas. Sin el hook, esas
+   cuarenta líneas estarían copiadas en los tres componentes, y un
+   arreglo en una copia se olvidaría en las otras. Con él, cada
    formulario declara QUÉ campos tiene y QUÉ reglas aplican; el CÓMO
    vive aquí una sola vez.
 
